@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
 #include <vector>
+#include "Transformable.hpp"
 #include "cubeData.h"
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
@@ -135,7 +136,6 @@ int main(int agrc, char *agrv[])
     shader.Setup(GetFullPath("SkyGraph/assets/Shaders/Lit/VertShader.glsl").c_str(),
                  GetFullPath("SkyGraph/assets/Shaders/Lit/FragShader.glsl").c_str());
     shader.color = Color(116, 155, 63);
-    shader.SetSpecularMap(CatSpec);
 
     shader2 = shader;
 
@@ -150,15 +150,20 @@ int main(int agrc, char *agrv[])
 
     shader.UseTexture = true;
 
+    Transformable dirLight;
+    dirLight.position = glm::vec3(3.5f);
+    dirLight.eulerAngles = glm::vec3(45.f, -45.f, 0.f);
+    dirLight.UpdateLocalVectors();
+
     shader.SetColor("u_Material.DiffuseColor", shader.color);
     shader.SetDiffuseMap(PugTex);
-    shader.SetEmissionMap(EmissionMap);
-    shader.SetFloat("u_Material.SpecularColor", 1);
+    shader.SetFloat("u_Material.minLight", 0.4f);
+    shader.SetFloat("u_Material.Specular", 0.2f);
     shader.SetFloat("u_Material.Shiness", shaderMat.Shiness);
 
-    shader.SetVec3("u_Light.ambient",  glm::vec3(0.2f));
-    shader.SetVec3("u_Light.difuse",  glm::vec3(1.f));
-    shader.SetVec3("u_Light.specular", glm::vec3(0.3f));
+    shader.SetVec3("u_DirectionalLight.color", glm::vec3(1.f));
+    shader.SetVec3("u_DirectionalLight.direction", dirLight.front);
+
 
     shader2.SetColor("u_Material.DiffuseColor", shader2.color);
     shader2.SetFloat("u_Material.SpecularColor", 1);
@@ -184,21 +189,21 @@ int main(int agrc, char *agrv[])
         for (int i = 0; i < cubes.capacity(); i++)               // this cycle draws all cubes from  position and scales arrays
         {
             if (i==0){
-                shader2.SetVec3("u_Light.pos", Lamp.position);                                               // Set a light source pos
                 shader2.SetVec3("camPos", Camera::main->position);                                           // Set a view pos
                 shader2.SetMat4("u_Model", cubes[i].GetModelMat());                                          // Set Transformation matrix to shader
                 shader2.SetMat4("u_View", Camera::main->GetView());                                          // Set View matrix to make a camera moving effect
                 shader2.SetMat4("u_Projection", Camera::main->GetProjection());
+                shader2.use();
             }
             else
             {
-                shader.SetVec3("u_Light.pos", (float[]){Lamp.position.x, Lamp.position.y, Lamp.position.z});    // Set a light source pos
                 shader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
                 shader.SetMat4("u_Model", cubes[i].GetModelMat());                                              // Set Transformation matrix to shader
                 shader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
                 shader.SetMat4("u_Projection", Camera::main->GetProjection());
+                shader.use();
             }
-            shader.use();
+            
             glDrawArrays(GL_TRIANGLES, 0, 36);                                                    // Drawing all points as a trianges
         }  
         
