@@ -101,9 +101,9 @@ int main(int agrc, char *agrv[])
     frame_buffer_size_callback(window, 800, 600);                                               // calling a window scaling callback to setup our program to res 800x600
     glfwSwapInterval((float)1 / (float)144);                                                        // Setting Vsync for 144 hz monitor
 
-    std::vector<Transformable> cubes = std::vector<Transformable>(3);
+    std::vector<Transformable> cubes = std::vector<Transformable>(4);
 
-    cubes[0].position = glm::vec3(-1.5f, 2.f, -5.f);
+    cubes[0].position = glm::vec3(-1.5f, 1.f, 1.f);
     cubes[0].scale = glm::vec3(1.1f);
 
     cubes[1].position = glm::vec3(3.f, -0.7f, -2.f);
@@ -112,7 +112,11 @@ int main(int agrc, char *agrv[])
     cubes[2].position = glm::vec3(0.8f, 4.f, -2.f);
     cubes[2].scale = glm::vec3(0.7f);
 
+    cubes[3].position = glm::vec3(15.f, 0, 10.f);
+    cubes[3].scale = glm::vec3(1.f);
+
     Transformable Lamp;
+    Lamp.position = glm::vec3(0.0f);
     Lamp.scale = glm::vec3(0.2f);
 
     bool polygon;
@@ -164,14 +168,22 @@ int main(int agrc, char *agrv[])
     shader.SetVec3("u_DirectionalLight.color", glm::vec3(1.f));
     shader.SetVec3("u_DirectionalLight.direction", dirLight.front);
 
+    shader.SetVec3("u_PointLight.position", Lamp.position);
+    shader.SetVec3("u_PointLight.color", glm::vec3(1.0f));
+    shader.SetFloat("u_PointLight.constant", 1.0f);
+    shader.SetFloat("u_PointLight.linear", 0.22f);
+    shader.SetFloat("u_PointLight.quadratic", 0.20f);
 
-    shader2.SetColor("u_Material.DiffuseColor", shader2.color);
-    shader2.SetFloat("u_Material.SpecularColor", 1);
-    shader2.SetFloat("u_Material.Shiness", shaderMat.Shiness);
+    camera->UpdateLocalVectors();
 
-    shader2.SetVec3("u_Light.ambient",  glm::vec3(0.2f));
-    shader2.SetVec3("u_Light.difuse",  glm::vec3(1.f));
-    shader2.SetVec3("u_Light.specular", glm::vec3(0.3f));
+    shader.SetVec3("u_SpotLight.position", camera->position);
+    shader.SetVec3("u_SpotLight.direction", camera->front);
+    shader.SetVec3("u_SpotLight.color", glm::vec3(0.0f));
+    shader.SetFloat("u_SpotLight.cutoff", glm::cos(glm::radians(30.f)));
+    shader.SetFloat("u_SpotLight.smothing_angle", glm::cos(glm::radians(26.f)));
+    shader.SetFloat("u_SpotLight.constant", 1.0f);
+    shader.SetFloat("u_SpotLight.linear", 0.22f);
+    shader.SetFloat("u_SpotLight.quadratic", 0.20f);
 
     LampShader.SetColor("u_Color", LampShader.color);
 
@@ -182,27 +194,22 @@ int main(int agrc, char *agrv[])
 
         rot += deltaTime;
 
+        camera->UpdateLocalVectors();
+
         mover.Update(deltaTime);
         colChoiser.Update(deltaTime);
 
         glBindVertexArray(VertexArrayObject);
         for (int i = 0; i < cubes.capacity(); i++)               // this cycle draws all cubes from  position and scales arrays
         {
-            if (i==0){
-                shader2.SetVec3("camPos", Camera::main->position);                                           // Set a view pos
-                shader2.SetMat4("u_Model", cubes[i].GetModelMat());                                          // Set Transformation matrix to shader
-                shader2.SetMat4("u_View", Camera::main->GetView());                                          // Set View matrix to make a camera moving effect
-                shader2.SetMat4("u_Projection", Camera::main->GetProjection());
-                shader2.use();
-            }
-            else
-            {
-                shader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
-                shader.SetMat4("u_Model", cubes[i].GetModelMat());                                              // Set Transformation matrix to shader
-                shader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
-                shader.SetMat4("u_Projection", Camera::main->GetProjection());
-                shader.use();
-            }
+            shader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
+            shader.SetMat4("u_Model", cubes[i].GetModelMat());                                              // Set Transformation matrix to shader
+            shader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
+            shader.SetMat4("u_Projection", Camera::main->GetProjection());
+
+            shader.SetVec3("u_SpotLight.position", camera->position);
+            shader.SetVec3("u_SpotLight.direction", camera->front);
+            shader.use();
             
             glDrawArrays(GL_TRIANGLES, 0, 36);                                                    // Drawing all points as a trianges
         }  
