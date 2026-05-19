@@ -13,12 +13,10 @@ Camera::Camera(float fov, float xtoy, float near, float far){
     XtoY = xtoy;
 }
 glm::mat4 Camera::GetView(){
-    UpdateLocalVectors();
     return glm::lookAt(position, position + front, up);
 }
 
 glm::mat4 Camera::GetProjection(){
-    UpdateLocalVectors();
     return glm::perspective(glm::radians(Fov), XtoY, Near, Far);
 }
 

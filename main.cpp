@@ -7,12 +7,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
 #include <vector>
-#include "Transformable.hpp"
 #include "cubeData.h"
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
 #include "Scripts/RuntimeColorChoise/ColorChoise.hpp"
-#include <Texture.hpp>
+
+#include <SkyGraph.hpp>
 
 float lastTime;
 float deltaTime;
@@ -28,6 +28,8 @@ Shader LampShader;
 ColorChoise colChoiser;
 
 Material shaderMat;
+
+DirectionLight dir;
 
 std::shared_ptr<Camera> camera;
 CameraMover mover;
@@ -157,7 +159,8 @@ int main(int agrc, char *agrv[])
     Transformable dirLight;
     dirLight.position = glm::vec3(3.5f);
     dirLight.eulerAngles = glm::vec3(45.f, -45.f, 0.f);
-    dirLight.UpdateLocalVectors();
+
+    Transformable::UpdateLocals();
 
     shader.SetColor("u_Material.DiffuseColor", shader.color);
     shader.SetDiffuseMap(PugTex);
@@ -173,8 +176,6 @@ int main(int agrc, char *agrv[])
     shader.SetFloat("u_PointLight.constant", 1.0f);
     shader.SetFloat("u_PointLight.linear", 0.22f);
     shader.SetFloat("u_PointLight.quadratic", 0.20f);
-
-    camera->UpdateLocalVectors();
 
     shader.SetVec3("u_SpotLight.position", camera->position);
     shader.SetVec3("u_SpotLight.direction", camera->front);
@@ -192,9 +193,9 @@ int main(int agrc, char *agrv[])
         glClearColor(0.1, 0.1, 0.1, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        rot += deltaTime;
+        Transformable::UpdateLocals();
 
-        camera->UpdateLocalVectors();
+        rot += deltaTime;
 
         mover.Update(deltaTime);
         colChoiser.Update(deltaTime);
@@ -253,6 +254,7 @@ int main(int agrc, char *agrv[])
         }                                                            //
 
         if (glfwGetKey(window, GLFW_KEY_3) && buttPand <= 0){
+            shader.UseTexture = true;
             shader.SetDiffuseMap(RockTex);
             buttPand = 0.2f;
         }

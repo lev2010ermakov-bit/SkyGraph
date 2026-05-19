@@ -1,11 +1,13 @@
 #pragma once
 
-#include <glm/ext/vector_float3.hpp>
 #include <glm/glm.hpp>
 
 const glm::vec3 World_up = glm::vec3(0.0f, 1.0f, 0.0f); 
 
 class Transformable{
+        static std::vector<Transformable*> instances;
+        void UpdateLocalVectors();
+        bool destroy = false;
     public:
         Transformable();
 
@@ -18,5 +20,5 @@ class Transformable{
         glm::vec3 up;
 
         glm::mat4 GetModelMat();
-        void UpdateLocalVectors();
+        static void UpdateLocals();
 };

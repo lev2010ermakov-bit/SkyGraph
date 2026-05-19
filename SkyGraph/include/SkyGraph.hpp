@@ -5,3 +5,4 @@
 #include "Texture.hpp"
 #include "Transformable.hpp"
 #include "Camera.hpp"
+#include "DirectionLight.hpp"

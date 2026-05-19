@@ -1,5 +1,6 @@
 #include "Shader.hpp"
 #include "glad/glad.h"
+#include <cstddef>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
@@ -125,10 +126,15 @@ void Shader::Setup(const char* VertPath, const char* FragPath){
 
 void Shader::use(){
     glUseProgram(ID);
-    SetBool("u_Material.hasDiff", DiffuseMap != nullptr);
-    SetBool("u_Material.hasSpec", SpecularMap != nullptr);
-    SetBool("u_Material.hasEmis", EmissionMap != nullptr);
+    bool diff = DiffuseMap != nullptr && UseTexture;
+    bool spec = SpecularMap != nullptr && UseTexture;
+    bool emis = EmissionMap != nullptr && UseTexture;
+    SetBool("u_Material.hasDiff", diff);
+    SetBool("u_Material.hasSpec", spec);
+    SetBool("u_Material.hasEmis", emis);
 
+    if (!UseTexture) return;
+    
     if (DiffuseMap) {
         glActiveTexture(GL_TEXTURE0);
         DiffuseMap->Bind();

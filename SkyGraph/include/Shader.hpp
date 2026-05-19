@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -14,6 +15,7 @@
 struct Color{
     uint8_t r = 255, g = 255, b = 255, a = 255;
     Color(){}
+    Color(uint8_t scalar) {r = scalar; g = scalar; b = scalar; a = 255; };
     Color(uint8_t red, uint8_t green, uint8_t blue){ r = red; g = green; b = blue; a = 255; } 
     Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {r = red; g = green; b = blue; a = alpha; }
 };

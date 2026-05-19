@@ -3,7 +3,11 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/matrix.hpp>
+#include <algorithm>
+#include <vector>
 
+
+std::vector<Transformable*> Transformable::instances = std::vector<Transformable*>();
 
 // ----------   CONSTRUCTORS   ---------- //
 Transformable::Transformable(){
@@ -36,4 +40,17 @@ void Transformable::UpdateLocalVectors(){
     front = glm::normalize(dir);
     right = glm::normalize(glm::cross(front, World_up));
     up = glm::normalize(glm::cross(front, right));
+}
+
+void Transformable::UpdateLocals(){
+    for (Transformable* t : instances){
+        if (t) t->UpdateLocalVectors();
+        else   instances.erase(std::remove(instances.begin(), instances.end(), t), instances.end());
+
+        if (t->destroy)
+        {
+            delete t;
+            instances.erase(std::remove(instances.begin(), instances.end(), t), instances.end());
+        }
+    }
 }
