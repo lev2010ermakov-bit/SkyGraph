@@ -7,6 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
 #include <vector>
+#include "Camera.hpp"
+#include "DirectionLight.hpp"
+#include "Transformable.hpp"
 #include "cubeData.h"
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
@@ -22,7 +25,6 @@ int currentColDebug;
 int currentColItem;
 
 Shader shader;
-Shader shader2;
 Shader LampShader;
 
 ColorChoise colChoiser;
@@ -30,14 +32,17 @@ ColorChoise colChoiser;
 Material shaderMat;
 
 DirectionLight dir;
+DirectionLight dir2;
+PointLight point;
+SpotLight spot;
 
-std::shared_ptr<Camera> camera;
+Camera camera;
 CameraMover mover;
 
 void frame_buffer_size_callback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
-    camera->XtoY = (float)width/(float)height;
+    camera.XtoY = (float)width/(float)height;
     mover.lastx = (float)width/2;
     mover.lasty = (float)height/2; 
 }
@@ -48,10 +53,12 @@ void curs_callback(GLFWwindow* wind, double x, double y){
 
 int main(int agrc, char *agrv[])
 {
-    camera = std::make_shared<Camera>(60.f, 800.f/600.f, 0.1f, 100.f);  // Initializing camera class
+    camera = Camera(75, 800.f/600.f, 0.1f, 10000.f);  // Initializing camera class
     Camera::SetMain(camera);                                            // Set new camera as a main  
-    camera->position = glm::vec3(-3.31473, -1.567f, 6.05006f);
-    camera->eulerAngles = glm::vec3(14.9043f, -61.7206f, 0.0f);
+    camera.position = glm::vec3(-3.31473, -1.567f, 6.05006f);
+    camera.eulerAngles = glm::vec3(14.9043f, -61.7206f, 0.0f);
+    //camera.background = Color(45, 138, 189);    beauty blue color
+    camera.background = Color(20);
 
     curr_agrv = agrv[0];
     glfwInit();                                                     // Initializing a glfw
@@ -68,7 +75,7 @@ int main(int agrc, char *agrv[])
         std::cout << "Failed To init glad" << std::endl;                                // error log
     }
 
-    mover = CameraMover(camera, window);  // Create a class that moves the camera
+    mover = CameraMover(camera, *window);  // Create a class that moves the camera
 
     glEnable(GL_DEPTH_TEST);    // enable an OpenGL depth test 
 
@@ -117,10 +124,6 @@ int main(int agrc, char *agrv[])
     cubes[3].position = glm::vec3(15.f, 0, 10.f);
     cubes[3].scale = glm::vec3(1.f);
 
-    Transformable Lamp;
-    Lamp.position = glm::vec3(0.0f);
-    Lamp.scale = glm::vec3(0.2f);
-
     bool polygon;
     float buttPand;
 
@@ -143,8 +146,6 @@ int main(int agrc, char *agrv[])
                  GetFullPath("SkyGraph/assets/Shaders/Lit/FragShader.glsl").c_str());
     shader.color = Color(116, 155, 63);
 
-    shader2 = shader;
-
     LampShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitVertShader.glsl").c_str(), 
                      GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitFragShader.glsl").c_str());
     LampShader.color = Color(255, 255, 255);
@@ -156,71 +157,82 @@ int main(int agrc, char *agrv[])
 
     shader.UseTexture = true;
 
-    Transformable dirLight;
-    dirLight.position = glm::vec3(3.5f);
-    dirLight.eulerAngles = glm::vec3(45.f, -45.f, 0.f);
-
-    Transformable::UpdateLocals();
-
     shader.SetColor("u_Material.DiffuseColor", shader.color);
+    shader.SetVec3("u_Material.ShadowColor", camera.background.glCol3());
     shader.SetDiffuseMap(PugTex);
     shader.SetFloat("u_Material.minLight", 0.4f);
-    shader.SetFloat("u_Material.Specular", 0.2f);
+    shader.SetFloat("u_Material.Specular", 0.5f);
     shader.SetFloat("u_Material.Shiness", shaderMat.Shiness);
 
-    shader.SetVec3("u_DirectionalLight.color", glm::vec3(1.f));
-    shader.SetVec3("u_DirectionalLight.direction", dirLight.front);
+    dir.color = Color(255.0f);
+    dir.eulerAngles.y = 90.f;
+    dir.eulerAngles.x = 20;
+    dir.scale = glm::vec3(0.3f, 0.3f, 1.f);
+    Transformable::UpdateLocals();
+    dir.position -= dir.front * 3.f;
 
-    shader.SetVec3("u_PointLight.position", Lamp.position);
-    shader.SetVec3("u_PointLight.color", glm::vec3(1.0f));
-    shader.SetFloat("u_PointLight.constant", 1.0f);
-    shader.SetFloat("u_PointLight.linear", 0.22f);
-    shader.SetFloat("u_PointLight.quadratic", 0.20f);
+    dir2.eulerAngles.y = -90;
+    dir2.eulerAngles.x = 20;
+    dir2.color = Color(0.9569 * 255, 0.6549 * 255, 0.1686 * 255);
+    dir2.scale = glm::vec3(0.3f, 0.3f, 1.f);
+    Transformable::UpdateLocals();
+    dir2.position -= dir2.front * 3.f;
 
-    shader.SetVec3("u_SpotLight.position", camera->position);
-    shader.SetVec3("u_SpotLight.direction", camera->front);
-    shader.SetVec3("u_SpotLight.color", glm::vec3(0.0f));
-    shader.SetFloat("u_SpotLight.cutoff", glm::cos(glm::radians(30.f)));
-    shader.SetFloat("u_SpotLight.smothing_angle", glm::cos(glm::radians(26.f)));
-    shader.SetFloat("u_SpotLight.constant", 1.0f);
-    shader.SetFloat("u_SpotLight.linear", 0.22f);
-    shader.SetFloat("u_SpotLight.quadratic", 0.20f);
+    point.color = Color(255.0f);
+    point.position = glm::vec3(0.0f);
+    point.scale = glm::vec3(0.1f);
+    point.constant = 1.0f;
+    point.linear = 0.22f;
+    point.quadratic = 0.20f;
 
-    LampShader.SetColor("u_Color", LampShader.color);
+    spot.color = Color(255.0f);
+    spot.position = camera.position;
+    spot.eulerAngles = camera.eulerAngles;
+    spot.radius = 30.f;
+    spot.smoothing = 0.1f;
+    spot.constant = 1.0f;
+    spot.linear = 0.22f;
+    spot.quadratic = 0.20f;
+
+    LampShader.SetColor("u_Color", point.color);
 
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.1, 0.1, 0.1, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         Transformable::UpdateLocals();
+        DirectionLight::ShaderSet(shader);
+        PointLight::ShaderSet(shader);
+        SpotLight::ShaderSet(shader);
+
+        glClearColor(camera.background.glCol4().r, camera.background.glCol4().g, camera.background.glCol4().b, camera.background.glCol4().a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         rot += deltaTime;
 
         mover.Update(deltaTime);
         colChoiser.Update(deltaTime);
+        spot.position = camera.position;
+        spot.eulerAngles = camera.eulerAngles;
 
         glBindVertexArray(VertexArrayObject);
         for (int i = 0; i < cubes.capacity(); i++)               // this cycle draws all cubes from  position and scales arrays
         {
+            shader.use();
             shader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
             shader.SetMat4("u_Model", cubes[i].GetModelMat());                                              // Set Transformation matrix to shader
-            shader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
-            shader.SetMat4("u_Projection", Camera::main->GetProjection());
-
-            shader.SetVec3("u_SpotLight.position", camera->position);
-            shader.SetVec3("u_SpotLight.direction", camera->front);
+            shader.SetMat4("u_View", camera.GetView());                                              // Set View matrix to make a camera moving effect
+            shader.SetMat4("u_Projection", camera.GetProjection());
             shader.use();
-            
+            glBindVertexArray(VertexArrayObject);
             glDrawArrays(GL_TRIANGLES, 0, 36);                                                    // Drawing all points as a trianges
         }  
         
         glBindVertexArray(LightVertexArrayObject);
 
         LampShader.use();
-        LampShader.SetMat4("u_Model", Lamp.GetModelMat());
+        LampShader.SetMat4("u_Model", point.GetModelMat());
         LampShader.SetMat4("u_View", Camera::main->GetView());
         LampShader.SetMat4("u_Projection", Camera::main->GetProjection());
+        LampShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
@@ -266,8 +278,8 @@ int main(int agrc, char *agrv[])
         }                                                           //
 
         if (glfwGetKey(window, GLFW_KEY_L) && buttPand <= 0){
-            std::cout << "pos: " << camera->position.x << " " << camera->position.y << " " << camera->position.z << std::endl;
-            std::cout << "rot: " << camera->eulerAngles.x << " " << camera->eulerAngles.y << " " << camera->eulerAngles.z << std::endl;
+            std::cout << "pos: " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
+            std::cout << "rot: " << camera.eulerAngles.x << " " << camera.eulerAngles.y << " " << camera.eulerAngles.z << std::endl;
             buttPand = 0.2f;
         }
 

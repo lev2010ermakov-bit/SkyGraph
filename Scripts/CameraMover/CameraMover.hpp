@@ -3,7 +3,6 @@
 #include <SkyGraph.hpp>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <memory>
 
 enum direction{
     forward,
@@ -17,9 +16,9 @@ enum direction{
 class CameraMover{
     public:
         CameraMover();
-        CameraMover(std::shared_ptr<Camera> camera, GLFWwindow* window);
+        CameraMover(Camera& camera, GLFWwindow& window);
         void Update(float deltaTime);
-        std::shared_ptr<Camera> camera;
+        Camera* camera;
         GLFWwindow* window;
         bool firstMouse = true, CursHiden = true;
         float lastx = 400.f, lasty = 300.f, x, y, mouse_sence = 0.1f, buttPand, deltaTime;

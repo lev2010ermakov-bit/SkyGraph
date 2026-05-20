@@ -4,9 +4,9 @@ CameraMover::CameraMover(){
 
 }
 
-CameraMover::CameraMover(std::shared_ptr<Camera> cam, GLFWwindow* currWindow){
-    camera = cam;
-    window = currWindow;
+CameraMover::CameraMover(Camera& cam, GLFWwindow& currWindow){
+    camera = &cam;
+    window = &currWindow;
 }
 
 void CameraMover::Update(float dt){

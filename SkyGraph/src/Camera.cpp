@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-std::shared_ptr<Camera> Camera::main;
+Camera* Camera::main;
 
 Camera::Camera(){
     
@@ -20,6 +20,6 @@ glm::mat4 Camera::GetProjection(){
     return glm::perspective(glm::radians(Fov), XtoY, Near, Far);
 }
 
-void Camera::SetMain(std::shared_ptr<Camera> camera){
-    main = camera;
+void Camera::SetMain(Camera& camera){
+    main = &camera;
 }

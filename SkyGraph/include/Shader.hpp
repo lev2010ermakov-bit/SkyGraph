@@ -18,6 +18,8 @@ struct Color{
     Color(uint8_t scalar) {r = scalar; g = scalar; b = scalar; a = 255; };
     Color(uint8_t red, uint8_t green, uint8_t blue){ r = red; g = green; b = blue; a = 255; } 
     Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {r = red; g = green; b = blue; a = alpha; }
+    glm::vec3 glCol3() {return glm::vec3(static_cast<float>(r)/255.f, static_cast<float>(g)/255.f, static_cast<float>(b)/255.f);}
+    glm::vec4 glCol4() {return glm::vec4(static_cast<float>(r)/255.f, static_cast<float>(g)/255.f, static_cast<float>(b)/255.f, static_cast<float>(a)/255.f); }
 };
 
 class Shader{

@@ -14,6 +14,7 @@ Transformable::Transformable(){
     scale = glm::vec3(1);
     position = glm::vec3(0);
     eulerAngles = glm::vec3(0);
+    instances.push_back(this);
 }
 
 
@@ -44,13 +45,10 @@ void Transformable::UpdateLocalVectors(){
 
 void Transformable::UpdateLocals(){
     for (Transformable* t : instances){
-        if (t) t->UpdateLocalVectors();
-        else   instances.erase(std::remove(instances.begin(), instances.end(), t), instances.end());
-
-        if (t->destroy)
-        {
-            delete t;
-            instances.erase(std::remove(instances.begin(), instances.end(), t), instances.end());
-        }
+        t->UpdateLocalVectors();
     }
+}
+
+void Transformable::destroy(){
+    instances.erase(std::remove(instances.begin(), instances.end(), this), instances.end());
 }
