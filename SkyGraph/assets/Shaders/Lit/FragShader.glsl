@@ -54,9 +54,9 @@ in vec3 FragPos;
 in vec3 Normal;
 
 
-#define DIRLIGHT_COUNT 2
+#define DIRLIGHT_COUNT 6
 #define POINTLIGHT_COUNT 1
-#define SPOTLIGHT_COUNT 1
+#define SPOTLIGHT_COUNT 2
 
 uniform Material u_Material;
 

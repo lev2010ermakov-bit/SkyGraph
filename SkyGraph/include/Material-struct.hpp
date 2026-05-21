@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-struct Material{
+struct sMaterial{
     public:
         glm::vec3 AmbientColor = glm::vec3(1.f);
         glm::vec3 DifuseColor = glm::vec3(1.f);

@@ -218,18 +218,6 @@ void Shader::SetColor(const char* name, Color col){                             
     SetVec4(name, (float[]){(float)col.r/(float)255, (float)col.g/(float)255, (float)col.b/(float)255, (float)col.a/(float)255});
 }
 
-void Shader::SetDiffuseMap(std::shared_ptr<Texture2D> map){
-    DiffuseMap = map;
-}
-
-void Shader::SetSpecularMap(std::shared_ptr<Texture2D> map){
-    SpecularMap = map;
-}
-
-void Shader::SetEmissionMap(std::shared_ptr<Texture2D> map){
-    EmissionMap = map;
-}
-
 // ----------  MEMORY SAFETY  ---------- //
 
 Shader& Shader::operator=(Shader&& other){

@@ -10,3 +10,4 @@
 #include "PointLight.hpp"
 #include "SpotLight.hpp"
 #include "DirectionLight.hpp"
+#include "Material.hpp"

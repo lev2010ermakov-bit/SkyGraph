@@ -5,7 +5,7 @@ ColorChoise::ColorChoise(){
 
 }
 
-ColorChoise::ColorChoise(GLFWwindow* wind, Material* mat, Shader* shade){
+ColorChoise::ColorChoise(GLFWwindow* wind, sMaterial* mat, Shader* shade){
     window = wind;
     shaderMat = mat;
     shader = shade;

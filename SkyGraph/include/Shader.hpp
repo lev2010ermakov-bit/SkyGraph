@@ -32,7 +32,7 @@ class Shader{
         std::shared_ptr<Texture2D> DiffuseMap = nullptr;
         std::shared_ptr<Texture2D> SpecularMap = nullptr;
         std::shared_ptr<Texture2D> EmissionMap = nullptr;
-        Color color = Color();
+        Color color;
         Shader();
         Shader(const Shader& other);
         Shader(const Shader&& other);
@@ -58,10 +58,6 @@ class Shader{
         void SetInt(const char* name, int value);
 
         void SetColor(const char* name, Color col);
-
-        void SetDiffuseMap(std::shared_ptr<Texture2D> map);
-        void SetSpecularMap(std::shared_ptr<Texture2D> map);
-        void SetEmissionMap(std::shared_ptr<Texture2D> map);
 
         Shader& operator=(const Shader& other);
         Shader& operator=(Shader&& other);

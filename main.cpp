@@ -24,7 +24,7 @@ Shader LampShader;
 
 ColorChoise colChoiser;
 
-Material shaderMat;
+sMaterial shaderMat;
 
 DirectionLight dir;
 DirectionLight dir2;
@@ -156,7 +156,7 @@ int main(int agrc, char *agrv[])
 
     shader.SetColor("u_Material.DiffuseColor", shader.color);
     shader.SetVec3("u_Material.ShadowColor", glm::vec3(0.3f));
-    shader.SetDiffuseMap(PugTex);
+    shader.DiffuseMap = PugTex;
     shader.SetFloat("u_Material.minLight", 0.4f);
     shader.SetFloat("u_Material.Specular", 0.5f);
     shader.SetFloat("u_Material.Shiness", shaderMat.Shiness);
@@ -175,10 +175,10 @@ int main(int agrc, char *agrv[])
     Transformable::UpdateLocals();
     dir2.position -= dir2.front * 3.f;
 
-    point.color = Color(255.0f);
+    point.color = Color(47, 194, 60);
     point.constant = 1.0f;
-    point.linear = 0.22f;
-    point.quadratic = 0.20f;
+    point.linear = 0.09f;
+    point.quadratic = 0.032f;
 
     point.position = glm::vec3(0.0f);
     point.scale = glm::vec3(0.1f);
@@ -194,7 +194,7 @@ int main(int agrc, char *agrv[])
     flashlight.position = camera.position;
     flashlight.eulerAngles = camera.eulerAngles;
 
-    LampShader.SetColor("u_Color", point.color);
+    LampShader.SetVec3("u_Material.color", point.color.glCol3());
 
     while (!glfwWindowShouldClose(window))
     {
@@ -228,19 +228,19 @@ int main(int agrc, char *agrv[])
         
         glBindVertexArray(LightVertexArrayObject);
 
-        LampShader.SetColor("u_Color", point.color);
+        LampShader.SetVec3("u_Material.color", point.color.glCol3());
         LampShader.SetMat4("u_Model", point.GetModelMat());
         LampShader.SetMat4("u_View", Camera::main->GetView());
         LampShader.SetMat4("u_Projection", Camera::main->GetProjection());
         LampShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        LampShader.SetColor("u_Color", dir.color);
+        LampShader.SetVec3("u_Material.color", dir.color.glCol3());
         LampShader.SetMat4("u_Model", dir.GetModelMat());
         LampShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        LampShader.SetColor("u_Color", dir2.color);
+        LampShader.SetVec3("u_Material.color", dir2.color.glCol3());
         LampShader.SetMat4("u_Model", dir2.GetModelMat());
         LampShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -264,20 +264,20 @@ int main(int agrc, char *agrv[])
         if (glfwGetKey(window, GLFW_KEY_1) && buttPand <= 0)    // Switching to Cat texture
         {
             shader.UseTexture = true;
-            shader.SetDiffuseMap(CatTex);
+            shader.DiffuseMap = CatTex;
             buttPand = 0.2f;
         }
 
         if (glfwGetKey(window, GLFW_KEY_2) && buttPand <= 0)    // Switching to Pug texture
         {                                                            //
             shader.UseTexture = true;
-            shader.SetDiffuseMap(PugTex);                       //
+            shader.DiffuseMap = PugTex;                       //
             buttPand = 0.2f;                                         //
         }                                                            //
 
         if (glfwGetKey(window, GLFW_KEY_3) && buttPand <= 0){
             shader.UseTexture = true;
-            shader.SetDiffuseMap(RockTex);
+            shader.DiffuseMap = RockTex;
             buttPand = 0.2f;
         }
 
