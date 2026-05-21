@@ -1,15 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/ext/vector_float3.hpp>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <memory>
 #include <vector>
-#include "Camera.hpp"
-#include "DirectionLight.hpp"
-#include "Transformable.hpp"
 #include "cubeData.h"
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
@@ -187,13 +182,14 @@ int main(int agrc, char *agrv[])
     point.position = glm::vec3(0.0f);
     point.scale = glm::vec3(0.1f);
 
-    spot.color = Color(255.0f);
+    spot.color = Color(0);
     spot.radius = 30.f;
     spot.smoothing = 0.1f;
+
     spot.constant = 1.0f;
     spot.linear = 0.22f;
     spot.quadratic = 0.20f;
-    
+
     spot.position = camera.position;
     spot.eulerAngles = camera.eulerAngles;
 
