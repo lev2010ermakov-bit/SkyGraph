@@ -29,7 +29,8 @@ Material shaderMat;
 DirectionLight dir;
 DirectionLight dir2;
 PointLight point;
-SpotLight spot;
+SpotLight flashlight;
+bool flashlightTurn = true;
 
 Camera camera;
 CameraMover mover;
@@ -182,16 +183,16 @@ int main(int agrc, char *agrv[])
     point.position = glm::vec3(0.0f);
     point.scale = glm::vec3(0.1f);
 
-    spot.color = Color(0);
-    spot.radius = 30.f;
-    spot.smoothing = 0.1f;
+    flashlight.color = Color(255);
+    flashlight.radius = 30.f;
+    flashlight.smoothing = 0.1f;
 
-    spot.constant = 1.0f;
-    spot.linear = 0.22f;
-    spot.quadratic = 0.20f;
+    flashlight.constant = 1.0f;
+    flashlight.linear = 0.22f;
+    flashlight.quadratic = 0.20f;
 
-    spot.position = camera.position;
-    spot.eulerAngles = camera.eulerAngles;
+    flashlight.position = camera.position;
+    flashlight.eulerAngles = camera.eulerAngles;
 
     LampShader.SetColor("u_Color", point.color);
 
@@ -208,12 +209,8 @@ int main(int agrc, char *agrv[])
 
         mover.Update(deltaTime);
         colChoiser.Update(deltaTime);
-        spot.position = camera.position;
-        spot.eulerAngles = camera.eulerAngles;
-
-        //point.position = camera.position;
-        //point.eulerAngles = camera.eulerAngles;
-        //point.position += point.front;
+        flashlight.position = camera.position;
+        flashlight.eulerAngles = camera.eulerAngles;
         
         Transformable::UpdateLocals();
         glBindVertexArray(VertexArrayObject);
@@ -289,6 +286,17 @@ int main(int agrc, char *agrv[])
             shader.color = Color(116, 155, 63);     //
             buttPand = 0.2f;                                        //
         }                                                           //
+
+        if (glfwGetKey(window, GLFW_KEY_F) && buttPand <= 0){
+            if (flashlightTurn){
+                flashlight.color = Color(0);
+            }
+            else{
+                flashlight.color = Color(255);
+            }
+            flashlightTurn = !flashlightTurn;
+            buttPand = 0.2f;
+        }
 
         if (glfwGetKey(window, GLFW_KEY_L) && buttPand <= 0){
             std::cout << "pos: " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
