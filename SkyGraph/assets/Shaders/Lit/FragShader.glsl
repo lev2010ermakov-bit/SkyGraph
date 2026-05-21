@@ -93,7 +93,7 @@ void main(){
         output += GetDirectional(u_DirLights[i], normal, view);
     
     for (int i = 0; i < POINTLIGHT_COUNT; i++)
-        //output += GetPoint(u_PointLights[i], normal, view);
+        output += GetPoint(u_PointLights[i], normal, view);
 
     for (int i = 0; i < SPOTLIGHT_COUNT; i++)
         output += GetSpot(u_SpotLights[i], normal, view);
@@ -111,10 +111,10 @@ vec3 GetDirectional(DirectionalLight Light, vec3 norm, vec3 ViewDirection){
     vec3 diffuse_res;
 
     if (u_Material.hasDiff){
-        diffuse_res = diff * texture(u_Material.DiffuseMap, TexCoords).xyz;
+        diffuse_res = Light.color * diff * texture(u_Material.DiffuseMap, TexCoords).xyz;
     }
     else{
-        diffuse_res = diff * vec3(u_Material.DiffuseColor);
+        diffuse_res = Light.color * diff * vec3(u_Material.DiffuseColor);
     }
 
     vec3 reflectDir = reflect(-lightDir, norm);
@@ -139,10 +139,10 @@ vec3 GetPoint(PointLight Light, vec3 norm, vec3 ViewDirection){
     vec3 diffuse_res;
 
     if (u_Material.hasDiff){
-        diffuse_res = diff * texture(u_Material.DiffuseMap, TexCoords).xyz;
+        diffuse_res = Light.color * diff * texture(u_Material.DiffuseMap, TexCoords).xyz;
     }
     else{
-        diffuse_res = diff * vec3(u_Material.DiffuseColor);
+        diffuse_res = Light.color * diff * vec3(u_Material.DiffuseColor);
     }
 
     vec3 reflectDir = reflect(-lightDir, norm);
@@ -159,7 +159,7 @@ vec3 GetPoint(PointLight Light, vec3 norm, vec3 ViewDirection){
 
 vec3 GetSpot(SpotLight Light, vec3 norm, vec3 ViewDirection){
     float distance = length(Light.position - FragPos);
-    float attenuation = 1.0/(Light.constant + Light.linear * distance + Light.quadratic * pow(distance, 2));
+    float attenuation = 1.0/(Light.constant + Light.linear * distance + Light.quadratic * (distance * distance));
     vec3 lightDir = normalize(Light.position - FragPos);
 
     float diff = max(dot(norm, lightDir), 0.0);
@@ -167,10 +167,10 @@ vec3 GetSpot(SpotLight Light, vec3 norm, vec3 ViewDirection){
     vec3 diffuse_res;
 
     if (u_Material.hasDiff){
-        diffuse_res = diff * texture(u_Material.DiffuseMap, TexCoords).xyz;
+        diffuse_res = Light.color * diff * texture(u_Material.DiffuseMap, TexCoords).xyz;
     }
     else{
-        diffuse_res = diff * vec3(u_Material.DiffuseColor);
+        diffuse_res = Light.color * diff * vec3(u_Material.DiffuseColor);
     }
 
     vec3 reflectDir = reflect(-lightDir, norm);

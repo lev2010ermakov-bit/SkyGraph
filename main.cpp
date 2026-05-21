@@ -57,7 +57,8 @@ int main(int agrc, char *agrv[])
     Camera::SetMain(camera);                                            // Set new camera as a main  
     camera.position = glm::vec3(-3.31473, -1.567f, 6.05006f);
     camera.eulerAngles = glm::vec3(14.9043f, -61.7206f, 0.0f);
-    //camera.background = Color(45, 138, 189);    beauty blue color
+    //camera.background = Color(45, 138, 189);    //beauty blue color
+    //camera.background = Color(209, 46, 33);    //beauty red color
     camera.background = Color(20);
 
     curr_agrv = agrv[0];
@@ -158,7 +159,7 @@ int main(int agrc, char *agrv[])
     shader.UseTexture = true;
 
     shader.SetColor("u_Material.DiffuseColor", shader.color);
-    shader.SetVec3("u_Material.ShadowColor", camera.background.glCol3());
+    shader.SetVec3("u_Material.ShadowColor", glm::vec3(0.3f));
     shader.SetDiffuseMap(PugTex);
     shader.SetFloat("u_Material.minLight", 0.4f);
     shader.SetFloat("u_Material.Specular", 0.5f);
@@ -167,38 +168,39 @@ int main(int agrc, char *agrv[])
     dir.color = Color(255.0f);
     dir.eulerAngles.y = 90.f;
     dir.eulerAngles.x = 20;
-    dir.scale = glm::vec3(0.3f, 0.3f, 1.f);
+    dir.scale = glm::vec3(0.3f);
     Transformable::UpdateLocals();
     dir.position -= dir.front * 3.f;
 
     dir2.eulerAngles.y = -90;
     dir2.eulerAngles.x = 20;
     dir2.color = Color(0.9569 * 255, 0.6549 * 255, 0.1686 * 255);
-    dir2.scale = glm::vec3(0.3f, 0.3f, 1.f);
+    dir2.scale = glm::vec3(0.3f);
     Transformable::UpdateLocals();
     dir2.position -= dir2.front * 3.f;
 
     point.color = Color(255.0f);
-    point.position = glm::vec3(0.0f);
-    point.scale = glm::vec3(0.1f);
     point.constant = 1.0f;
     point.linear = 0.22f;
     point.quadratic = 0.20f;
 
+    point.position = glm::vec3(0.0f);
+    point.scale = glm::vec3(0.1f);
+
     spot.color = Color(255.0f);
-    spot.position = camera.position;
-    spot.eulerAngles = camera.eulerAngles;
     spot.radius = 30.f;
     spot.smoothing = 0.1f;
     spot.constant = 1.0f;
     spot.linear = 0.22f;
     spot.quadratic = 0.20f;
+    
+    spot.position = camera.position;
+    spot.eulerAngles = camera.eulerAngles;
 
     LampShader.SetColor("u_Color", point.color);
 
     while (!glfwWindowShouldClose(window))
     {
-        Transformable::UpdateLocals();
         DirectionLight::ShaderSet(shader);
         PointLight::ShaderSet(shader);
         SpotLight::ShaderSet(shader);
@@ -213,6 +215,11 @@ int main(int agrc, char *agrv[])
         spot.position = camera.position;
         spot.eulerAngles = camera.eulerAngles;
 
+        //point.position = camera.position;
+        //point.eulerAngles = camera.eulerAngles;
+        //point.position += point.front;
+        
+        Transformable::UpdateLocals();
         glBindVertexArray(VertexArrayObject);
         for (int i = 0; i < cubes.capacity(); i++)               // this cycle draws all cubes from  position and scales arrays
         {
@@ -224,14 +231,24 @@ int main(int agrc, char *agrv[])
             shader.use();
             glBindVertexArray(VertexArrayObject);
             glDrawArrays(GL_TRIANGLES, 0, 36);                                                    // Drawing all points as a trianges
-        }  
+        } 
         
         glBindVertexArray(LightVertexArrayObject);
 
-        LampShader.use();
+        LampShader.SetColor("u_Color", point.color);
         LampShader.SetMat4("u_Model", point.GetModelMat());
         LampShader.SetMat4("u_View", Camera::main->GetView());
         LampShader.SetMat4("u_Projection", Camera::main->GetProjection());
+        LampShader.use();
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        LampShader.SetColor("u_Color", dir.color);
+        LampShader.SetMat4("u_Model", dir.GetModelMat());
+        LampShader.use();
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        LampShader.SetColor("u_Color", dir2.color);
+        LampShader.SetMat4("u_Model", dir2.GetModelMat());
         LampShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 

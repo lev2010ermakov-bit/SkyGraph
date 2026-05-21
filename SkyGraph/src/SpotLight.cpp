@@ -12,6 +12,7 @@ SpotLight::SpotLight(){
     quadratic = 0.20;
     radius = 20.f;
     smoothing = 0.1f;
+    instances.push_back(this);
 }
 
 void SpotLight::BindToShader(Shader& shader, int id){
@@ -26,9 +27,12 @@ void SpotLight::BindToShader(Shader& shader, int id){
 
     shader.SetVec3(pos_key.c_str(), position);
     shader.SetVec3(dir_key.c_str(), front);
-    shader.SetVec3(col_key.c_str(), color.glCol3());
+    shader.SetVec3(col_key.c_str(), glm::vec3(1));
     shader.SetFloat(cut_key.c_str(), glm::cos(glm::radians(radius)));
-    shader.SetFloat(smooth_key.c_str(), glm::cos(glm::radians(radius * static_cast<float>(glm::clamp(smoothing, 0.f, 1.f)))));
+    shader.SetFloat(smooth_key.c_str(), glm::cos(glm::radians((radius - (radius * std::clamp(smoothing, 0.0f, radius))))));
+    shader.SetFloat(linear_key.c_str(), linear);
+    shader.SetFloat(constant_key.c_str(), constant);
+    shader.SetFloat(quadratic_key.c_str(), quadratic);
 }
 
 void SpotLight::ShaderSet(Shader& shader){

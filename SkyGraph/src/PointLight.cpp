@@ -10,6 +10,7 @@ PointLight::PointLight(){
     constant = 1.0f;
     linear = 0.22;
     quadratic = 0.20;
+    instances.push_back(this);
 }
 
 void PointLight::BindToShader(Shader& shader, int id){
