@@ -5,8 +5,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
-#include "Shader.hpp"
-#include "UnlitMat.hpp"
 #include "cubeData.h"
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
@@ -153,7 +151,6 @@ int main(int agrc, char *agrv[])
     LightMat.color = Color(255);
 
     PointMat.SetShader(UnlitShader);
-    PointMat.color = Color(255);
 
     DirMat.SetShader(UnlitShader);
     Dir2Mat.SetShader(UnlitShader);
@@ -195,9 +192,10 @@ int main(int agrc, char *agrv[])
 
     flashlight.position = camera.position;
     flashlight.eulerAngles = camera.eulerAngles;
-    
+
     DirMat.color = dir.color;
     Dir2Mat.color = dir2.color;
+    PointMat.color = point.color;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -233,19 +231,18 @@ int main(int agrc, char *agrv[])
         glBindVertexArray(LightVertexArrayObject);
 
         PointMat.Bind();
-        UnlitShader.SetVec3("u_Material.color", point.color.glCol3());
         UnlitShader.SetMat4("u_Model", point.GetModelMat());
         UnlitShader.SetMat4("u_View", Camera::main->GetView());
         UnlitShader.SetMat4("u_Projection", Camera::main->GetProjection());
         UnlitShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        UnlitShader.SetVec3("u_Material.color", dir.color.glCol3());
+        DirMat.Bind();
         UnlitShader.SetMat4("u_Model", dir.GetModelMat());
         UnlitShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        UnlitShader.SetVec3("u_Material.color", dir2.color.glCol3());
+        Dir2Mat.Bind();
         UnlitShader.SetMat4("u_Model", dir2.GetModelMat());
         UnlitShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
