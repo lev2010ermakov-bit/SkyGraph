@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Destroy.hpp"
-#include "Material-struct.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "Transformable.hpp"
@@ -11,3 +10,5 @@
 #include "SpotLight.hpp"
 #include "DirectionLight.hpp"
 #include "Material.hpp"
+#include "UnlitMat.hpp"
+#include "LitMat.hpp"

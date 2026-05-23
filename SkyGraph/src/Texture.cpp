@@ -39,7 +39,8 @@ void Texture2D::loadFromFile(const char* path, GLint ca){
 }
 
 void Texture2D::Bind(){
-    glBindTexture(GL_TEXTURE_2D, ID);
+    if (ID != 0)
+        glBindTexture(GL_TEXTURE_2D, ID);
 }
 
 

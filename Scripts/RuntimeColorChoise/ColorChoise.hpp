@@ -6,13 +6,12 @@
 class ColorChoise{
     public:
         GLFWwindow* window;
-        sMaterial* shaderMat;
-        Shader* shader;
+        Material* material;
         float buttPand;
         bool colorDebug;
         int currentColDebug, currentColItem;
 
         ColorChoise();
-        ColorChoise(GLFWwindow* wind, sMaterial* mat, Shader* shade);
+        ColorChoise(GLFWwindow* wind, Material* mat);
         void Update(float deltaTime);
 };

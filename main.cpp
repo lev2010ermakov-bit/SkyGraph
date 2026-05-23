@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+#include "Shader.hpp"
+#include "UnlitMat.hpp"
 #include "cubeData.h"
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
@@ -19,12 +21,16 @@ bool colorDebug;
 int currentColDebug;
 int currentColItem;
 
-Shader shader;
-Shader LampShader;
+Shader LitShader;
+Shader UnlitShader;
+
+UnlitMat PointMat;
+UnlitMat DirMat;
+UnlitMat Dir2Mat;
+
+LitMat LightMat;
 
 ColorChoise colChoiser;
-
-sMaterial shaderMat;
 
 DirectionLight dir;
 DirectionLight dir2;
@@ -130,36 +136,32 @@ int main(int agrc, char *agrv[])
     glfwSetCursorPosCallback(window, curs_callback);
 
     colChoiser.window = window;
-    colChoiser.shader = &shader;
-    colChoiser.shaderMat = &shaderMat;
+    colChoiser.material = &LightMat;
 
-    std::shared_ptr<Texture2D> PugTex = std::make_shared<Texture2D>(GetFullPath("SkyGraph/assets/Textures/PugImage.png").c_str(), GL_RGBA);         // Loading a Textures
-    std::shared_ptr<Texture2D> CatSpec = std::make_shared<Texture2D>(GetFullPath("SkyGraph/assets/Textures/catSpecular.png").c_str(), GL_RGBA);     //
-    std::shared_ptr<Texture2D> EmissionMap = std::make_shared<Texture2D>(GetFullPath("SkyGraph/assets/Textures/EmissionMap.jpg").c_str(), GL_RGB);
-    std::shared_ptr<Texture2D> CatTex = std::make_shared<Texture2D>(GetFullPath("SkyGraph/assets/Textures/catImage.jpg").c_str(), GL_RGB);          //
-    std::shared_ptr<Texture2D> RockTex = std::make_shared<Texture2D>(GetFullPath("SkyGraph/assets/Textures/rockImage.jpg").c_str(), GL_RGB);        // 
+    Texture2D PugTex(GetFullPath("SkyGraph/assets/Textures/PugImage.png").c_str(), GL_RGBA);         // Loading a Textures
+    Texture2D CatSpec(GetFullPath("SkyGraph/assets/Textures/catSpecular.png").c_str(), GL_RGBA);     //
+    Texture2D EmissionMap(GetFullPath("SkyGraph/assets/Textures/EmissionMap.jpg").c_str(), GL_RGB);
+    Texture2D CatTex(GetFullPath("SkyGraph/assets/Textures/catImage.jpg").c_str(), GL_RGB);          //
+    Texture2D RockTex(GetFullPath("SkyGraph/assets/Textures/rockImage.jpg").c_str(), GL_RGB);        // 
 
-    shader.Setup(GetFullPath("SkyGraph/assets/Shaders/Lit/VertShader.glsl").c_str(),
+    LitShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Lit/VertShader.glsl").c_str(),
                  GetFullPath("SkyGraph/assets/Shaders/Lit/FragShader.glsl").c_str());
-    shader.color = Color(116, 155, 63);
-
-    LampShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitVertShader.glsl").c_str(), 
+    UnlitShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitVertShader.glsl").c_str(), 
                      GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitFragShader.glsl").c_str());
-    LampShader.color = Color(255, 255, 255);
 
-    shaderMat.AmbientColor = glm::vec3(1.0f);
-    shaderMat.DifuseColor = glm::vec3(1.0f);
-    shaderMat.SpecularColor = glm::vec3(1.0f);
-    shaderMat.Shiness = 256.f;
+    LightMat.SetShader(LitShader);
+    LightMat.color = Color(255);
 
-    shader.UseTexture = true;
+    PointMat.SetShader(UnlitShader);
+    PointMat.color = Color(255);
 
-    shader.SetColor("u_Material.DiffuseColor", shader.color);
-    shader.SetVec3("u_Material.ShadowColor", glm::vec3(0.3f));
-    shader.DiffuseMap = PugTex;
-    shader.SetFloat("u_Material.minLight", 0.4f);
-    shader.SetFloat("u_Material.Specular", 0.5f);
-    shader.SetFloat("u_Material.Shiness", shaderMat.Shiness);
+    DirMat.SetShader(UnlitShader);
+    Dir2Mat.SetShader(UnlitShader);
+
+    LightMat.Shiness = 256.f;
+    LightMat.Roughness = 1.f;
+    LightMat.ShadowColor = Color(10);
+    LightMat.DiffuseMap = &PugTex;
 
     dir.color = Color(255.0f);
     dir.eulerAngles.y = 90.f;
@@ -193,14 +195,15 @@ int main(int agrc, char *agrv[])
 
     flashlight.position = camera.position;
     flashlight.eulerAngles = camera.eulerAngles;
-
-    LampShader.SetVec3("u_Material.color", point.color.glCol3());
+    
+    DirMat.color = dir.color;
+    Dir2Mat.color = dir2.color;
 
     while (!glfwWindowShouldClose(window))
     {
-        DirectionLight::ShaderSet(shader);
-        PointLight::ShaderSet(shader);
-        SpotLight::ShaderSet(shader);
+        DirectionLight::ShaderSet(LitShader);
+        PointLight::ShaderSet(LitShader);
+        SpotLight::ShaderSet(LitShader);
 
         glClearColor(camera.background.glCol4().r, camera.background.glCol4().g, camera.background.glCol4().b, camera.background.glCol4().a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -214,35 +217,37 @@ int main(int agrc, char *agrv[])
         
         Transformable::UpdateLocals();
         glBindVertexArray(VertexArrayObject);
+        LightMat.Bind();
         for (int i = 0; i < cubes.capacity(); i++)               // this cycle draws all cubes from  position and scales arrays
         {
-            shader.use();
-            shader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
-            shader.SetMat4("u_Model", cubes[i].GetModelMat());                                              // Set Transformation matrix to shader
-            shader.SetMat4("u_View", camera.GetView());                                              // Set View matrix to make a camera moving effect
-            shader.SetMat4("u_Projection", camera.GetProjection());
-            shader.use();
+            LitShader.use();
+            LitShader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
+            LitShader.SetMat4("u_Model", cubes[i].GetModelMat());                                              // Set Transformation matrix to shader
+            LitShader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
+            LitShader.SetMat4("u_Projection", Camera::main->GetProjection());
+            LitShader.use();
             glBindVertexArray(VertexArrayObject);
             glDrawArrays(GL_TRIANGLES, 0, 36);                                                    // Drawing all points as a trianges
         } 
         
         glBindVertexArray(LightVertexArrayObject);
 
-        LampShader.SetVec3("u_Material.color", point.color.glCol3());
-        LampShader.SetMat4("u_Model", point.GetModelMat());
-        LampShader.SetMat4("u_View", Camera::main->GetView());
-        LampShader.SetMat4("u_Projection", Camera::main->GetProjection());
-        LampShader.use();
+        PointMat.Bind();
+        UnlitShader.SetVec3("u_Material.color", point.color.glCol3());
+        UnlitShader.SetMat4("u_Model", point.GetModelMat());
+        UnlitShader.SetMat4("u_View", Camera::main->GetView());
+        UnlitShader.SetMat4("u_Projection", Camera::main->GetProjection());
+        UnlitShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        LampShader.SetVec3("u_Material.color", dir.color.glCol3());
-        LampShader.SetMat4("u_Model", dir.GetModelMat());
-        LampShader.use();
+        UnlitShader.SetVec3("u_Material.color", dir.color.glCol3());
+        UnlitShader.SetMat4("u_Model", dir.GetModelMat());
+        UnlitShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        LampShader.SetVec3("u_Material.color", dir2.color.glCol3());
-        LampShader.SetMat4("u_Model", dir2.GetModelMat());
-        LampShader.use();
+        UnlitShader.SetVec3("u_Material.color", dir2.color.glCol3());
+        UnlitShader.SetMat4("u_Model", dir2.GetModelMat());
+        UnlitShader.use();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
@@ -253,37 +258,35 @@ int main(int agrc, char *agrv[])
 
         if (glfwGetKey(window, GLFW_KEY_TAB) && buttPand <= 0)     // Switching a polygon mode
         {                                                               // 
-            polygon = polygon ? false : true;                           //
-            if (polygon)                                                //
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);   //
-            else                                                        //
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);   //
+            polygon = !polygon;                                         //
+            GLint mode = polygon ? GL_LINE : GL_FILL;
+            glPolygonMode(GL_FRONT_AND_BACK, mode);
             buttPand = 0.2f;                                            //
         }
 
         if (glfwGetKey(window, GLFW_KEY_1) && buttPand <= 0)    // Switching to Cat texture
         {
-            shader.UseTexture = true;
-            shader.DiffuseMap = CatTex;
+            LightMat.color = Color(255);
+            LightMat.DiffuseMap = &CatTex;
             buttPand = 0.2f;
         }
 
         if (glfwGetKey(window, GLFW_KEY_2) && buttPand <= 0)    // Switching to Pug texture
-        {                                                            //
-            shader.UseTexture = true;
-            shader.DiffuseMap = PugTex;                       //
+        {
+            LightMat.color = Color(255);
+            LightMat.DiffuseMap = &PugTex;                       //
             buttPand = 0.2f;                                         //
         }                                                            //
 
         if (glfwGetKey(window, GLFW_KEY_3) && buttPand <= 0){
-            shader.UseTexture = true;
-            shader.DiffuseMap = RockTex;
+            LightMat.color = Color(255);
+            LightMat.DiffuseMap = &RockTex;
             buttPand = 0.2f;
         }
 
         if (glfwGetKey(window, GLFW_KEY_4) && buttPand <= 0){   // Switching to Monochrome mode
-            shader.UseTexture = false;                              //
-            shader.color = Color(116, 155, 63);     //
+            LightMat.color = Color(116, 155, 63);
+            LightMat.DiffuseMap = nullptr;
             buttPand = 0.2f;                                        //
         }                                                           //
 

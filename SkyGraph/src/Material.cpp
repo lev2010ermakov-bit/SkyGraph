@@ -1,5 +1,13 @@
 #include <Material.hpp>
 
-Material::Material(Shader& s){
-    shader = s;
+Material::Material(){
+    color = Color(255);
+}
+
+void Material::Bind(){
+
+}
+
+void Material::SetShader(Shader& s){
+    shader = &s;
 }

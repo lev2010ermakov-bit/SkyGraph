@@ -1,11 +1,13 @@
 #pragma once
 
-#include <SkyGraph.hpp>
+#include "Shader.hpp"
 
 class Material{
-    private:
-        Shader& shader;
+    protected:
+        Shader* shader;
     public:
         Color color;
-        Material(Shader& shader);
+        Material();
+        virtual void Bind();
+        virtual void SetShader(Shader& shader);
 };

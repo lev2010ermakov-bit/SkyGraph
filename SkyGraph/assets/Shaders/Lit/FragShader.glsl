@@ -122,7 +122,7 @@ vec3 GetDirectional(DirectionalLight Light, vec3 norm, vec3 ViewDirection){
     float spec = pow(max(dot(ViewDirection, reflectDir), 0.0), u_Material.Shiness);
     vec3 specular_res;
     if (u_Material.hasSpec)
-        specular_res = Light.color * (spec * texture(u_Material.SpecularMap, TexCoords).xyz);
+        specular_res = Light.color * (spec * texture(u_Material.SpecularMap, TexCoords).xyz * u_Material.Specular);
     else 
         specular_res = Light.color * (spec * u_Material.Specular);
 

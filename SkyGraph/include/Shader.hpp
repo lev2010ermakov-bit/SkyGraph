@@ -8,7 +8,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include <stdint.h>
-#include <memory>
 #include <Texture.hpp>
 
 
@@ -28,16 +27,14 @@ class Shader{
         std::string FragSourceString;
     public:
         unsigned int ID = 0;
-        bool UseTexture = false;
-        std::shared_ptr<Texture2D> DiffuseMap = nullptr;
-        std::shared_ptr<Texture2D> SpecularMap = nullptr;
-        std::shared_ptr<Texture2D> EmissionMap = nullptr;
-        Color color;
+
         Shader();
         Shader(const Shader& other);
         Shader(const Shader&& other);
         Shader(const char* VertPath, const char* FragPath);
+
         void Setup(const char* VertPath, const char* FragPath);
+        
         void use();
 
         void SetFloat(const char* name, float value);
@@ -58,6 +55,7 @@ class Shader{
         void SetInt(const char* name, int value);
 
         void SetColor(const char* name, Color col);
+        void SetColor(const char* name, float col[4]);
 
         Shader& operator=(const Shader& other);
         Shader& operator=(Shader&& other);

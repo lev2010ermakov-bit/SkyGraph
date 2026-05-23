@@ -5,7 +5,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <fstream>
-#include <memory>
 #include <sstream>
 
 
@@ -16,13 +15,6 @@ Shader::Shader(){
 
 Shader::Shader(const Shader&& other){
     ID = other.ID;
-    DiffuseMap = other.DiffuseMap;
-    EmissionMap = other.EmissionMap;
-    UseTexture = other.UseTexture;
-    color = other.color;
-    SetInt("u_Material.DiffuseMap", 0);
-    SetInt("u_Material.SpecularMap", 1);
-    SetInt("u_Material.EmissionMap", 2);
 }
 
 Shader::Shader(const Shader& other){
@@ -52,7 +44,6 @@ Shader::Shader(const Shader& other){
 
     glDeleteShader(vertshade);
     glDeleteShader(vertshade);
-    color = Color(0, 0, 0, 255);
     SetInt("u_Material.DiffuseMap", 0);
     SetInt("u_Material.SpecularMap", 1);
     SetInt("u_Material.EmissionMap", 2);
@@ -118,7 +109,6 @@ void Shader::Setup(const char* VertPath, const char* FragPath){
 
     glDeleteShader(VertShader);
     glDeleteShader(FragShader);
-    color = Color(0, 0, 0, 255);
     SetInt("u_Material.DiffuseMap", 0);
     SetInt("u_Material.SpecularMap", 1);
     SetInt("u_Material.EmissionMap", 2);
@@ -126,29 +116,6 @@ void Shader::Setup(const char* VertPath, const char* FragPath){
 
 void Shader::use(){
     glUseProgram(ID);
-    bool diff = DiffuseMap != nullptr && UseTexture;
-    bool spec = SpecularMap != nullptr && UseTexture;
-    bool emis = EmissionMap != nullptr && UseTexture;
-    SetBool("u_Material.hasDiff", diff);
-    SetBool("u_Material.hasSpec", spec);
-    SetBool("u_Material.hasEmis", emis);
-
-    if (!UseTexture) return;
-    
-    if (DiffuseMap) {
-        glActiveTexture(GL_TEXTURE0);
-        DiffuseMap->Bind();
-    }
-
-    if (SpecularMap) {
-        glActiveTexture(GL_TEXTURE1);
-        SpecularMap->Bind();
-    }
-    
-    if (EmissionMap) {
-        glActiveTexture(GL_TEXTURE2);
-        EmissionMap->Bind();
-    } 
 }
 
 // ----------   VECTORS   ---------- //
@@ -218,15 +185,15 @@ void Shader::SetColor(const char* name, Color col){                             
     SetVec4(name, (float[]){(float)col.r/(float)255, (float)col.g/(float)255, (float)col.b/(float)255, (float)col.a/(float)255});
 }
 
+void Shader::SetColor(const char* name, float col[4]){
+    SetVec4(name, {col[0]/255.f, col[1]/255.f, col[2]/255.f, col[3]/255.f});
+}
+
 // ----------  MEMORY SAFETY  ---------- //
 
 Shader& Shader::operator=(Shader&& other){
     if (ID != 0) glDeleteProgram(ID);
     ID = other.ID;
-    color = other.color;
-    DiffuseMap = other.DiffuseMap;
-    EmissionMap = other.EmissionMap;
-    UseTexture = other.UseTexture;
     VertSourceString = other.VertSourceString;
     FragSourceString = other.FragSourceString;
     return *this;
@@ -236,8 +203,6 @@ Shader& Shader::operator=(const Shader& other){
     if (ID != 0) glDeleteProgram(ID);
     VertSourceString = other.VertSourceString;
     FragSourceString = other.FragSourceString;
-    DiffuseMap = other.DiffuseMap;
-    EmissionMap = other.EmissionMap;
 
     ID = glCreateProgram();
     unsigned int vs, fs;
