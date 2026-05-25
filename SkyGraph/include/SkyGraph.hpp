@@ -12,3 +12,5 @@
 #include "Material.hpp"
 #include "UnlitMat.hpp"
 #include "LitMat.hpp"
+#include "Model.hpp"
+#include "Mesh.hpp"

@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <vector>
 #include "cubeData.h"
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
@@ -111,20 +110,6 @@ int main(int agrc, char *agrv[])
     frame_buffer_size_callback(window, 800, 600);                                               // calling a window scaling callback to setup our program to res 800x600
     glfwSwapInterval((float)1 / (float)144);                                                        // Setting Vsync for 144 hz monitor
 
-    std::vector<Transformable> cubes = std::vector<Transformable>(4);
-
-    cubes[0].position = glm::vec3(-1.5f, 1.f, 1.f);
-    cubes[0].scale = glm::vec3(1.1f);
-
-    cubes[1].position = glm::vec3(3.f, -0.7f, -2.f);
-    cubes[1].scale = glm::vec3(2.f);
-
-    cubes[2].position = glm::vec3(0.8f, 4.f, -2.f);
-    cubes[2].scale = glm::vec3(0.7f);
-
-    cubes[3].position = glm::vec3(15.f, 0, 10.f);
-    cubes[3].scale = glm::vec3(1.f);
-
     bool polygon;
     float buttPand;
 
@@ -138,14 +123,19 @@ int main(int agrc, char *agrv[])
 
     Texture2D PugTex(GetFullPath("SkyGraph/assets/Textures/PugImage.png").c_str(), GL_RGBA);         // Loading a Textures
     Texture2D CatSpec(GetFullPath("SkyGraph/assets/Textures/catSpecular.png").c_str(), GL_RGBA);     //
-    Texture2D EmissionMap(GetFullPath("SkyGraph/assets/Textures/EmissionMap.jpg").c_str(), GL_RGB);
+    Texture2D EmissionMap(GetFullPath("SkyGraph/assets/Textures/EmissionMap.jpg").c_str(), GL_RGB);  //
     Texture2D CatTex(GetFullPath("SkyGraph/assets/Textures/catImage.jpg").c_str(), GL_RGB);          //
     Texture2D RockTex(GetFullPath("SkyGraph/assets/Textures/rockImage.jpg").c_str(), GL_RGB);        // 
+    Texture2D CarTex(GetFullPath("Assets/textures/gltf_embedded_0.png").c_str(), GL_RGBA);
 
     LitShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Lit/VertShader.glsl").c_str(),
                  GetFullPath("SkyGraph/assets/Shaders/Lit/FragShader.glsl").c_str());
     UnlitShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitVertShader.glsl").c_str(), 
                      GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitFragShader.glsl").c_str());
+
+    Transformable carTransformable;
+    //carTransformable.eulerAngles.z = 180;
+    Model carModel(GetFullPath("Assets/fcube.obj"));
 
     LightMat.SetShader(LitShader);
     LightMat.color = Color(255);
@@ -158,7 +148,7 @@ int main(int agrc, char *agrv[])
     LightMat.Shiness = 256.f;
     LightMat.Roughness = 1.f;
     LightMat.ShadowColor = Color(10);
-    LightMat.DiffuseMap = &PugTex;
+    //LightMat.DiffuseMap = &CatTex;
 
     dir.color = Color(255.0f);
     dir.eulerAngles.y = 90.f;
@@ -174,7 +164,8 @@ int main(int agrc, char *agrv[])
     Transformable::UpdateLocals();
     dir2.position -= dir2.front * 3.f;
 
-    point.color = Color(47, 194, 60);
+    point.color = Color(0);
+    point.position = glm::vec3(7);
     point.constant = 1.0f;
     point.linear = 0.09f;
     point.quadratic = 0.032f;
@@ -214,20 +205,13 @@ int main(int agrc, char *agrv[])
         flashlight.eulerAngles = camera.eulerAngles;
         
         Transformable::UpdateLocals();
-        glBindVertexArray(VertexArrayObject);
-        LightMat.Bind();
-        for (int i = 0; i < cubes.capacity(); i++)               // this cycle draws all cubes from  position and scales arrays
-        {
-            LitShader.use();
-            LitShader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
-            LitShader.SetMat4("u_Model", cubes[i].GetModelMat());                                              // Set Transformation matrix to shader
-            LitShader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
-            LitShader.SetMat4("u_Projection", Camera::main->GetProjection());
-            LitShader.use();
-            glBindVertexArray(VertexArrayObject);
-            glDrawArrays(GL_TRIANGLES, 0, 36);                                                    // Drawing all points as a trianges
-        } 
-        
+        LitShader.use();
+        LitShader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
+        LitShader.SetMat4("u_Model", carTransformable.GetModelMat());                                              // Set Transformation matrix to shader
+        LitShader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
+        LitShader.SetMat4("u_Projection", Camera::main->GetProjection());
+        carModel.Draw(LightMat);
+
         glBindVertexArray(LightVertexArrayObject);
 
         PointMat.Bind();
@@ -260,7 +244,7 @@ int main(int agrc, char *agrv[])
             glPolygonMode(GL_FRONT_AND_BACK, mode);
             buttPand = 0.2f;                                            //
         }
-
+        /*
         if (glfwGetKey(window, GLFW_KEY_1) && buttPand <= 0)    // Switching to Cat texture
         {
             LightMat.color = Color(255);
@@ -286,7 +270,7 @@ int main(int agrc, char *agrv[])
             LightMat.DiffuseMap = nullptr;
             buttPand = 0.2f;                                        //
         }                                                           //
-
+        */
         if (glfwGetKey(window, GLFW_KEY_F) && buttPand <= 0){
             if (flashlightTurn){
                 flashlight.color = Color(0);
