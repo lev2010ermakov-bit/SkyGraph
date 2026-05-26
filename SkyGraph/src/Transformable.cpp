@@ -4,6 +4,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/matrix.hpp>
 #include <algorithm>
+#include <glm/trigonometric.hpp>
 #include <vector>
 
 
@@ -23,9 +24,9 @@ glm::mat4 Transformable::GetModelMat(){
     glm::mat4 res = glm::mat4(1);
 
     res = glm::translate(res, position);
-    res = glm::rotate(res, eulerAngles.x, glm::vec3(1.0f, 0.0f, 0.0f));
-    res = glm::rotate(res, eulerAngles.y, glm::vec3(0.0f, 1.0f, 0.0f));
-    res = glm::rotate(res, eulerAngles.z, glm::vec3(0.0f, 0.0f, 1.0f));
+    res = glm::rotate(res, glm::radians(eulerAngles.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    res = glm::rotate(res, glm::radians(eulerAngles.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    res = glm::rotate(res, glm::radians(eulerAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
     res = glm::scale(res, scale);
 
     return res;

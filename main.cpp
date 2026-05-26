@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "cubeData.h"
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
 #include "Scripts/RuntimeColorChoise/ColorChoise.hpp"
@@ -80,33 +79,7 @@ int main(int agrc, char *agrv[])
 
     glEnable(GL_DEPTH_TEST);    // enable an OpenGL depth test 
 
-    unsigned int VertexBufferObject, VertexArrayObject, LightVertexArrayObject, LightVertexBufferObject;
-
-    glGenBuffers(1, &VertexBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, VertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vtn_cube_vertexes), vtn_cube_vertexes, GL_STATIC_DRAW);
-
-
-    glGenVertexArrays(1, &VertexArrayObject);
-    glBindVertexArray(VertexArrayObject);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glGenVertexArrays(1, &LightVertexArrayObject);
-    glBindVertexArray(LightVertexArrayObject);
-    glGenBuffers(1, &LightVertexBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, LightVertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(v_cube_vertexes), v_cube_vertexes, GL_STATIC_DRAW);
-    glBindVertexArray(LightVertexArrayObject);                                                                           //
-    glBindBuffer(GL_ARRAY_BUFFER, LightVertexBufferObject);                                                      //
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);  //
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
+    Model cube(GetFullPath("Assets/cube.obj"));
 
     frame_buffer_size_callback(window, 800, 600);                                               // calling a window scaling callback to setup our program to res 800x600
     glfwSwapInterval((float)1 / (float)144);                                                        // Setting Vsync for 144 hz monitor
@@ -133,7 +106,8 @@ int main(int agrc, char *agrv[])
                      GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitFragShader.glsl").c_str());
 
     Transformable carTransformable;
-    carTransformable.eulerAngles = glm::vec3(-3.24408f, 3.12074f, 0.0f);
+    //carTransformable.eulerAngles = glm::vec3(-3.24408f, 3.12074f, 0.0f);
+    carTransformable.eulerAngles = glm::vec3(-180, 180, 0);
     Model carModel(GetFullPath("Assets/source/Untitled.obj"));
 
     LightMat.SetShader(LitShader);
@@ -209,24 +183,19 @@ int main(int agrc, char *agrv[])
         LitShader.SetMat4("u_Projection", Camera::main->GetProjection());
         carModel.Draw(LightMat);
 
-        glBindVertexArray(LightVertexArrayObject);
-
         PointMat.Bind();
         UnlitShader.SetMat4("u_Model", point.GetModelMat());
         UnlitShader.SetMat4("u_View", Camera::main->GetView());
         UnlitShader.SetMat4("u_Projection", Camera::main->GetProjection());
-        UnlitShader.use();
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        cube.Draw(PointMat);
 
         DirMat.Bind();
         UnlitShader.SetMat4("u_Model", dir.GetModelMat());
-        UnlitShader.use();
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        cube.Draw(DirMat);
 
         Dir2Mat.Bind();
         UnlitShader.SetMat4("u_Model", dir2.GetModelMat());
-        UnlitShader.use();
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        cube.Draw(Dir2Mat);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
