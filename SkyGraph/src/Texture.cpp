@@ -8,23 +8,23 @@ Texture2D::Texture2D(){
 
 }
 
-Texture2D::Texture2D(const char* path, GLint colorAttribs){
-    loadFromFile(path, colorAttribs);
+Texture2D::Texture2D(const char* path, GLint colorAttribs, GLint filter){
+    loadFromFile(path, colorAttribs, filter);
 }
 
 
 // ----------   CONTROL FUNCTIONS ---------- //
 
-void Texture2D::loadFromFile(const char* path, GLint ca){
+void Texture2D::loadFromFile(const char* path, GLint ca, GLint filter){
     ColAttrib = ca;
-    
+    TextureFilter = filter;
     glGenTextures(1, &ID);
     glBindTexture(GL_TEXTURE_2D, ID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
     stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(path, &width, &height, &nrChanels, 0);
@@ -51,7 +51,7 @@ Texture2D& Texture2D::operator=(const Texture2D& other){
     FilePath = other.FilePath;
     ColAttrib = other.ColAttrib;
 
-    loadFromFile(FilePath.c_str(), ColAttrib);
+    loadFromFile(FilePath.c_str(), ColAttrib, TextureFilter);
 
     return *this;
 }

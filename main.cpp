@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/ext/vector_float3.hpp>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -56,9 +57,9 @@ int main(int agrc, char *agrv[])
     Camera::SetMain(camera);                                            // Set new camera as a main  
     camera.position = glm::vec3(-3.31473, -1.567f, 6.05006f);
     camera.eulerAngles = glm::vec3(14.9043f, -61.7206f, 0.0f);
-    //camera.background = Color(45, 138, 189);    //beauty blue color
+    camera.background = Color(45, 138, 189);    //beauty blue color
     //camera.background = Color(209, 46, 33);    //beauty red color
-    camera.background = Color(20);
+    //camera.background = Color(20);
 
     curr_agrv = agrv[0];
     glfwInit();                                                     // Initializing a glfw
@@ -113,20 +114,18 @@ int main(int agrc, char *agrv[])
     bool polygon;
     float buttPand;
 
-    float rot;
-
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, curs_callback);
 
     colChoiser.window = window;
     colChoiser.material = &LightMat;
 
-    Texture2D PugTex(GetFullPath("SkyGraph/assets/Textures/PugImage.png").c_str(), GL_RGBA);         // Loading a Textures
-    Texture2D CatSpec(GetFullPath("SkyGraph/assets/Textures/catSpecular.png").c_str(), GL_RGBA);     //
-    Texture2D EmissionMap(GetFullPath("SkyGraph/assets/Textures/EmissionMap.jpg").c_str(), GL_RGB);  //
-    Texture2D CatTex(GetFullPath("SkyGraph/assets/Textures/catImage.jpg").c_str(), GL_RGB);          //
-    Texture2D RockTex(GetFullPath("SkyGraph/assets/Textures/rockImage.jpg").c_str(), GL_RGB);        // 
-    Texture2D CarTex(GetFullPath("Assets/textures/gltf_embedded_0.png").c_str(), GL_RGBA);
+    Texture2D PugTex(GetFullPath("SkyGraph/assets/Textures/PugImage.png").c_str(), GL_RGBA, GL_LINEAR);         // Loading a Textures
+    Texture2D CatSpec(GetFullPath("SkyGraph/assets/Textures/catSpecular.png").c_str(), GL_RGBA, GL_LINEAR);     //
+    Texture2D EmissionMap(GetFullPath("SkyGraph/assets/Textures/EmissionMap.jpg").c_str(), GL_RGB, GL_LINEAR);  //
+    Texture2D CatTex(GetFullPath("SkyGraph/assets/Textures/catImage.jpg").c_str(), GL_RGB, GL_LINEAR);          //
+    Texture2D RockTex(GetFullPath("SkyGraph/assets/Textures/rockImage.jpg").c_str(), GL_RGB, GL_LINEAR);        // 
+    Texture2D CarTex(GetFullPath("Assets/textures/gltf_embedded_0.png").c_str(), GL_RGBA, GL_NEAREST);
 
     LitShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Lit/VertShader.glsl").c_str(),
                  GetFullPath("SkyGraph/assets/Shaders/Lit/FragShader.glsl").c_str());
@@ -134,8 +133,8 @@ int main(int agrc, char *agrv[])
                      GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitFragShader.glsl").c_str());
 
     Transformable carTransformable;
-    //carTransformable.eulerAngles.z = 180;
-    Model carModel(GetFullPath("Assets/fcube.obj"));
+    carTransformable.eulerAngles = glm::vec3(-3.24408f, 3.12074f, 0.0f);
+    Model carModel(GetFullPath("Assets/source/Untitled.obj"));
 
     LightMat.SetShader(LitShader);
     LightMat.color = Color(255);
@@ -147,8 +146,8 @@ int main(int agrc, char *agrv[])
 
     LightMat.Shiness = 256.f;
     LightMat.Roughness = 1.f;
-    LightMat.ShadowColor = Color(10);
-    //LightMat.DiffuseMap = &CatTex;
+    LightMat.ShadowColor = Color(50);
+    LightMat.DiffuseMap = &CarTex;
 
     dir.color = Color(255.0f);
     dir.eulerAngles.y = 90.f;
@@ -196,14 +195,12 @@ int main(int agrc, char *agrv[])
 
         glClearColor(camera.background.glCol4().r, camera.background.glCol4().g, camera.background.glCol4().b, camera.background.glCol4().a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        rot += deltaTime;
-
+    
         mover.Update(deltaTime);
-        colChoiser.Update(deltaTime);
-        flashlight.position = camera.position;
-        flashlight.eulerAngles = camera.eulerAngles;
         
+
+            flashlight.position = camera.position;
+            flashlight.eulerAngles = camera.eulerAngles;
         Transformable::UpdateLocals();
         LitShader.use();
         LitShader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos

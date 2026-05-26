@@ -15,7 +15,7 @@ void Model::Draw(Material& mat){
 
 void Model::loadFrom(std::string path){
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
+    const aiScene* scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
         std::cout << "Assimp error: " << importer.GetErrorString() << std::endl;

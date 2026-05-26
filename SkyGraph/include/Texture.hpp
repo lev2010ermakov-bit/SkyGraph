@@ -14,12 +14,13 @@ struct Texture2D{
     unsigned int ID;
     TextureType type;
     GLint ColAttrib;
+    GLint TextureFilter;
     int width, height, nrChanels;
     std::string FilePath;
 
     Texture2D();
-    Texture2D(const char* path, GLint colorAttrib);
-    void loadFromFile(const char* path, GLint colorAttrib);
+    Texture2D(const char* path, GLint colorAttrib, GLint textureFilter);
+    void loadFromFile(const char* path, GLint colorAttrib, GLint textureFilter);
     void Bind();
 
     Texture2D& operator=(const Texture2D& other);

@@ -14,3 +14,5 @@
 #include "LitMat.hpp"
 #include "Model.hpp"
 #include "Mesh.hpp"
+#include <GLFW/glfw3.h>
+#include <iostream>
