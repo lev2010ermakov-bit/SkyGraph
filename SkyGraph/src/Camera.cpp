@@ -13,7 +13,8 @@ Camera::Camera(float fov, float xtoy, float near, float far){
     XtoY = xtoy;
 }
 glm::mat4 Camera::GetView(){
-    return glm::lookAt(position, position + front, up);
+    LocalVectors local = getLocals();
+    return glm::lookAt(position, position + local.front, local.up);
 }
 
 glm::mat4 Camera::GetProjection(){

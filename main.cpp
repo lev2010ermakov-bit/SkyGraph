@@ -7,7 +7,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Scripts/Loader/Loader.hpp"
 #include "Scripts/CameraMover/CameraMover.hpp"
-#include "Scripts/RuntimeColorChoise/ColorChoise.hpp"
 
 #include <SkyGraph.hpp>
 
@@ -26,8 +25,6 @@ UnlitMat DirMat;
 UnlitMat Dir2Mat;
 
 LitMat LightMat;
-
-ColorChoise colChoiser;
 
 DirectionLight dir;
 DirectionLight dir2;
@@ -90,9 +87,6 @@ int main(int agrc, char *agrv[])
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, curs_callback);
 
-    colChoiser.window = window;
-    colChoiser.material = &LightMat;
-
     Texture2D PugTex(GetFullPath("SkyGraph/assets/Textures/PugImage.png").c_str(), GL_RGBA, GL_LINEAR);         // Loading a Textures
     Texture2D CatSpec(GetFullPath("SkyGraph/assets/Textures/catSpecular.png").c_str(), GL_RGBA, GL_LINEAR);     //
     Texture2D EmissionMap(GetFullPath("SkyGraph/assets/Textures/EmissionMap.jpg").c_str(), GL_RGB, GL_LINEAR);  //
@@ -106,7 +100,6 @@ int main(int agrc, char *agrv[])
                      GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitFragShader.glsl").c_str());
 
     Transformable carTransformable;
-    //carTransformable.eulerAngles = glm::vec3(-3.24408f, 3.12074f, 0.0f);
     carTransformable.eulerAngles = glm::vec3(-180, 180, 0);
     Model carModel(GetFullPath("Assets/source/Untitled.obj"));
 
@@ -127,15 +120,13 @@ int main(int agrc, char *agrv[])
     dir.eulerAngles.y = 90.f;
     dir.eulerAngles.x = 20;
     dir.scale = glm::vec3(0.3f);
-    Transformable::UpdateLocals();
-    dir.position -= dir.front * 3.f;
+    dir.position -= dir.getLocals().front * 3.f;
 
     dir2.eulerAngles.y = -90;
     dir2.eulerAngles.x = 20;
     dir2.color = Color(0.9569 * 255, 0.6549 * 255, 0.1686 * 255);
     dir2.scale = glm::vec3(0.3f);
-    Transformable::UpdateLocals();
-    dir2.position -= dir2.front * 3.f;
+    dir2.position -= dir2.getLocals().front * 3.f;
 
     point.color = Color(0);
     point.position = glm::vec3(7);
@@ -173,9 +164,9 @@ int main(int agrc, char *agrv[])
         mover.Update(deltaTime);
         
 
-            flashlight.position = camera.position;
-            flashlight.eulerAngles = camera.eulerAngles;
-        Transformable::UpdateLocals();
+        flashlight.position = camera.position;
+        flashlight.eulerAngles = camera.eulerAngles;
+
         LitShader.use();
         LitShader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
         LitShader.SetMat4("u_Model", carTransformable.GetModelMat());                                              // Set Transformation matrix to shader

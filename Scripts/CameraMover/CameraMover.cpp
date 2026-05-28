@@ -18,21 +18,22 @@ void CameraMover::Update(float dt){
 }
 
 void CameraMover::keyboard_moving(){
+    LocalVectors camLocals = camera->getLocals();
     if (glfwGetKey(window, GLFW_KEY_W))
     {
-        camera->position += camera->front * deltaTime * 10.f;
+        camera->position += camLocals.front * deltaTime * 10.f;
     }
     if (glfwGetKey(window, GLFW_KEY_S))
     {
-        camera->position -= camera->front * deltaTime * 10.f;
+        camera->position -= camLocals.front * deltaTime * 10.f;
     }
     if (glfwGetKey(window, GLFW_KEY_A))
     {
-        camera->position -= glm::normalize(glm::cross(camera->front, camera->up)) * 10.f * deltaTime;
+        camera->position -= glm::normalize(glm::cross(camLocals.front, camLocals.up)) * 10.f * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_D))
     {
-        camera->position += glm::normalize(glm::cross(camera->front, camera->up)) * 10.f * deltaTime;
+        camera->position += glm::normalize(glm::cross(camLocals.front, camLocals.up)) * 10.f * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) && buttPand <= 0)
     {

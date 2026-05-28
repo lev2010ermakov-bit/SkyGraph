@@ -3,19 +3,14 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/matrix.hpp>
-#include <algorithm>
 #include <glm/trigonometric.hpp>
-#include <vector>
 
-
-std::vector<Transformable*> Transformable::instances = std::vector<Transformable*>();
 
 // ----------   CONSTRUCTORS   ---------- //
 Transformable::Transformable(){
     scale = glm::vec3(1);
     position = glm::vec3(0);
     eulerAngles = glm::vec3(0);
-    instances.push_back(this);
 }
 
 
@@ -33,23 +28,15 @@ glm::mat4 Transformable::GetModelMat(){
 }
 
 
-// ----------   SYSTEM FUNCTIONS   ---------- // 
-void Transformable::UpdateLocalVectors(){
+// ----------   SYSTEM FUNCTIONS   ---------- //
+LocalVectors Transformable::getLocals(){
+    LocalVectors res;
     glm::vec3 dir;
     dir.x = cos(glm::radians(eulerAngles.y)) * cos(glm::radians(eulerAngles.x));
     dir.y = sin(glm::radians(eulerAngles.x));
     dir.z = sin(glm::radians(eulerAngles.y)) * cos(glm::radians(eulerAngles.x));
-    front = glm::normalize(dir);
-    right = glm::normalize(glm::cross(front, World_up));
-    up = glm::normalize(glm::cross(front, right));
-}
-
-void Transformable::UpdateLocals(){
-    for (Transformable* t : instances){
-        t->UpdateLocalVectors();
-    }
-}
-
-void Transformable::destroy(){
-    instances.erase(std::remove(instances.begin(), instances.end(), this), instances.end());
+    res.front = glm::normalize(dir);
+    res.right = glm::normalize(glm::cross(res.front, World_up));
+    res.up = glm::normalize(glm::cross(res.front, res.right));
+    return res;
 }
