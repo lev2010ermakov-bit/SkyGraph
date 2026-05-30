@@ -32,7 +32,8 @@ class Transformable{
         glm::vec3 eulerAngles;
 
         void SetParent(Transformable* parent);
-        Transformable* GetParent;
+        void SetParent(Transformable& parent);
+        Transformable* GetParent();
 
         LocalVectors getLocals();
         glm::mat4 GetModelMat();

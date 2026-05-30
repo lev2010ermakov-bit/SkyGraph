@@ -152,6 +152,13 @@ int main(int agrc, char *agrv[])
     Dir2Mat.color = dir2.color;
     PointMat.color = point.color;
 
+    Transformable child, parent;
+    child.scale = glm::vec3(0.5f);
+    parent.scale = glm::vec3(0.4f);
+    child.SetParent(parent);    
+    parent.position.x = 8;
+    child.position.y = 2;
+
     while (!glfwWindowShouldClose(window))
     {
         DirectionLight::ShaderSet(LitShader);
@@ -167,7 +174,7 @@ int main(int agrc, char *agrv[])
         flashlight.position = camera.position;
         flashlight.eulerAngles = camera.eulerAngles;
 
-        LitShader.use();
+        LightMat.Bind();
         LitShader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
         LitShader.SetMat4("u_Model", carTransformable.GetModelMat());                                              // Set Transformation matrix to shader
         LitShader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
@@ -187,6 +194,14 @@ int main(int agrc, char *agrv[])
         Dir2Mat.Bind();
         UnlitShader.SetMat4("u_Model", dir2.GetModelMat());
         cube.Draw(Dir2Mat);
+
+        DirMat.Bind();
+        UnlitShader.SetMat4("u_Model", parent.GetModelMat());
+        cube.Draw(DirMat);
+
+        Dir2Mat.Bind();
+        UnlitShader.SetMat4("u_Model", child.GetModelMat());
+        cube.Draw(Dir2Mat); 
 
         glfwSwapBuffers(window);
         glfwPollEvents();

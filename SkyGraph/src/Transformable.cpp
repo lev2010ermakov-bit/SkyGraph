@@ -11,6 +11,7 @@ Transformable::Transformable(){
     scale = glm::vec3(1);
     position = glm::vec3(0);
     eulerAngles = glm::vec3(0);
+    parent = nullptr;
 }
 
 
@@ -24,7 +25,10 @@ glm::mat4 Transformable::GetModelMat(){
     res = glm::rotate(res, glm::radians(eulerAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
     res = glm::scale(res, scale);
 
-    return res;
+    if (parent == nullptr)
+        return res;
+    else
+        return parent->GetModelMat() * res ;
 }
 
 
@@ -39,4 +43,16 @@ LocalVectors Transformable::getLocals(){
     res.right = glm::normalize(glm::cross(res.front, World_up));
     res.up = glm::normalize(glm::cross(res.front, res.right));
     return res;
+}
+
+void Transformable::SetParent(Transformable* p){
+    parent = p;
+}
+
+void Transformable::SetParent(Transformable& p){
+    parent = &p;
+}
+
+Transformable* Transformable::GetParent(){
+    return parent;
 }
