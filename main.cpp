@@ -5,13 +5,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Scripts/Loader/Loader.hpp"
-#include "Scripts/CameraMover/CameraMover.hpp"
+#include "scripts/Loader/Loader.hpp"
+#include "scripts/CameraMover/CameraMover.hpp"
 
 #include <SkyGraph.hpp>
-
-float lastTime;
-float deltaTime;
 
 bool colorDebug;
 int currentColDebug;
@@ -76,7 +73,7 @@ int main(int agrc, char *agrv[])
 
     glEnable(GL_DEPTH_TEST);    // enable an OpenGL depth test 
 
-    Model cube(GetFullPath("Assets/cube.obj"));
+    Model cube(GetFullPath("assets/models/cube/cube.obj"));
 
     frame_buffer_size_callback(window, 800, 600);                                               // calling a window scaling callback to setup our program to res 800x600
     glfwSwapInterval((float)1 / (float)144);                                                        // Setting Vsync for 144 hz monitor
@@ -87,21 +84,21 @@ int main(int agrc, char *agrv[])
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, curs_callback);
 
-    Texture2D PugTex(GetFullPath("SkyGraph/assets/Textures/PugImage.png").c_str(), GL_RGBA, GL_LINEAR);         // Loading a Textures
-    Texture2D CatSpec(GetFullPath("SkyGraph/assets/Textures/catSpecular.png").c_str(), GL_RGBA, GL_LINEAR);     //
-    Texture2D EmissionMap(GetFullPath("SkyGraph/assets/Textures/EmissionMap.jpg").c_str(), GL_RGB, GL_LINEAR);  //
-    Texture2D CatTex(GetFullPath("SkyGraph/assets/Textures/catImage.jpg").c_str(), GL_RGB, GL_LINEAR);          //
-    Texture2D RockTex(GetFullPath("SkyGraph/assets/Textures/rockImage.jpg").c_str(), GL_RGB, GL_LINEAR);        // 
-    Texture2D CarTex(GetFullPath("Assets/textures/gltf_embedded_0.png").c_str(), GL_RGBA, GL_NEAREST);
+    Texture2D PugTex(GetFullPath("assets/textures/PugImage.png").c_str(), GL_RGBA, GL_LINEAR);         // Loading a Textures
+    Texture2D CatSpec(GetFullPath("assets/textures/catSpecular.png").c_str(), GL_RGBA, GL_LINEAR);     //
+    Texture2D EmissionMap(GetFullPath("assets/textures/EmissionMap.jpg").c_str(), GL_RGB, GL_LINEAR);  //
+    Texture2D CatTex(GetFullPath("assets/textures/catImage.jpg").c_str(), GL_RGB, GL_LINEAR);          //
+    Texture2D RockTex(GetFullPath("assets/textures/rockImage.jpg").c_str(), GL_RGB, GL_LINEAR);        // 
+    Texture2D CarTex(GetFullPath("assets/models/tiny-lowpoly-car/car-texture.png").c_str(), GL_RGBA, GL_NEAREST);
 
-    LitShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Lit/VertShader.glsl").c_str(),
-                 GetFullPath("SkyGraph/assets/Shaders/Lit/FragShader.glsl").c_str());
-    UnlitShader.Setup(GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitVertShader.glsl").c_str(), 
-                     GetFullPath("SkyGraph/assets/Shaders/Unlit/UnlitFragShader.glsl").c_str());
+    LitShader.Setup(GetFullPath("assets/shaders/Lit/VertShader.glsl").c_str(),
+                 GetFullPath("assets/shaders/Lit/FragShader.glsl").c_str());
+    UnlitShader.Setup(GetFullPath("assets/shaders/Unlit/UnlitVertShader.glsl").c_str(), 
+                     GetFullPath("assets/shaders/Unlit/UnlitFragShader.glsl").c_str());
 
     Transformable carTransformable;
     carTransformable.eulerAngles = glm::vec3(-180, 180, 0);
-    Model carModel(GetFullPath("Assets/source/Untitled.obj"));
+    Model carModel(GetFullPath("assets/models/tiny-lowpoly-car/car.obj"));
 
     LightMat.SetShader(LitShader);
     LightMat.color = Color(255);
@@ -159,8 +156,12 @@ int main(int agrc, char *agrv[])
     parent.position.x = 8;
     child.position.y = 2;
 
+    std::cout << CarTex.ID << "\n";
+    std::cout << LitShader.ID << "\n";
+
     while (!glfwWindowShouldClose(window))
     {
+        sk::Time::Update();
         DirectionLight::ShaderSet(LitShader);
         PointLight::ShaderSet(LitShader);
         SpotLight::ShaderSet(LitShader);
@@ -168,7 +169,7 @@ int main(int agrc, char *agrv[])
         glClearColor(camera.background.glCol4().r, camera.background.glCol4().g, camera.background.glCol4().b, camera.background.glCol4().a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-        mover.Update(deltaTime);
+        mover.Update(sk::Time::deltaTime);
         
 
         flashlight.position = camera.position;
@@ -207,7 +208,7 @@ int main(int agrc, char *agrv[])
         glfwPollEvents();
 
         if (buttPand > 0)
-            buttPand -= deltaTime;
+            buttPand -= sk::Time::deltaTime;
 
         if (glfwGetKey(window, GLFW_KEY_TAB) && buttPand <= 0)     // Switching a polygon mode
         {                                                               // 
@@ -258,10 +259,7 @@ int main(int agrc, char *agrv[])
             std::cout << "pos: " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
             std::cout << "rot: " << camera.eulerAngles.x << " " << camera.eulerAngles.y << " " << camera.eulerAngles.z << std::endl;
             buttPand = 0.2f;
-        }
-
-        deltaTime = (float)glfwGetTime() - lastTime;                // Calculation of time beetween frames
-        lastTime = (float)glfwGetTime();                            //
+        }                         //
     }
     return 0;
 }

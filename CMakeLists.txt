@@ -19,18 +19,18 @@ find_package(glfw3 REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
-file(GLOB_RECURSE SOURCE_FILE 
+file(GLOB_RECURSE SOURCE_FILE
     "main.cpp"
-    "SkyGraph/src/*.cpp"
-    "SkyGraph/third-party/glad/src/glad.c"
-    "SkyGraph/third-party/stb/src/stb_image.c"
+    "src/*.cpp"
+    "third-party/glad/src/glad.c"
+    "third-party/stb/src/stb_image.c"
 
-    "Scripts/*.cpp"
+    "scripts/*.cpp"
 )
 
 add_executable(build ${SOURCE_FILE})
 
-target_include_directories(build PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/SkyGraph/third-party/glad/include/)
-target_include_directories(build PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/SkyGraph/third-party/stb/include/)
-target_include_directories(build PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/SkyGraph/include/)
+target_include_directories(build PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third-party/glad/include/)
+target_include_directories(build PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third-party/stb/include/)
+target_include_directories(build PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 target_link_libraries(build PRIVATE glfw OpenGL::OpenGL glm::glm dl assimp)
