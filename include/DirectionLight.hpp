@@ -1,16 +1,11 @@
 #pragma once 
 
-#include <SkyGraph.hpp>
-#include <vector>
+#include "LightSource.hpp"
 
-class DirectionLight : public LightSource{
-    private:
-        static std::vector<DirectionLight*> instances;
-        static int LightsMatchingCount;
-
-        void BindToShader(Shader& shader, int id) override;
-        void destroy();
-    public:
-        DirectionLight();
-        static void ShaderSet(Shader& shader);
-};
+namespace sky{
+    class DirectionLight : public LightSource{
+        public:
+            DirectionLight();
+            void BindToShader(Shader& shader, int id) override;
+    };
+}

@@ -16,13 +16,10 @@ enum direction{
 class CameraMover{
     public:
         CameraMover();
-        CameraMover(Camera& camera, GLFWwindow& window);
-        void Update(float deltaTime);
-        Camera* camera;
-        GLFWwindow* window;
+        void Update();
+        sky::Camera* camera;
         bool firstMouse = true, CursHiden = true;
-        float lastx = 400.f, lasty = 300.f, x, y, mouse_sence = 0.1f, buttPand, deltaTime;
-        void onCursPosChanged(GLFWwindow* window, double x, double y);
+        float mouse_sence = 0.1f, buttPand;
     private:
         void keyboard_moving();
         void mouse_moving();

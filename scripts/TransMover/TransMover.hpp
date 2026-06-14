@@ -7,9 +7,9 @@ class TransMover{
         float buttPand;
         unsigned int currentOption;
     public:
-        Transformable* Target;
+        sky::Transformable* Target;
         bool inWork;
         TransMover();
-        TransMover(Transformable& target);
-        void Update(float deltaTime, GLFWwindow* window);
+        TransMover(sky::Transformable& target);
+        void Update();
 };

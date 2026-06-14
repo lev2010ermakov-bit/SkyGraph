@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 
-namespace sk{
+namespace sky{
     const glm::vec3 World_up = glm::vec3(0, 1, 0);
     
     class Object{

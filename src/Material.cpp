@@ -1,13 +1,15 @@
 #include <Material.hpp>
 
-Material::Material(){
-    color = Color(255);
-}
+namespace sky{
+    Material::Material(){
+        color = Color(255);
+    }
 
-void Material::Bind(){
+    void Material::Bind(){
 
-}
+    }
 
-void Material::SetShader(Shader& s){
-    shader = &s;
+    void Material::SetShader(Shader& s){
+        shader = &s;
+    }
 }

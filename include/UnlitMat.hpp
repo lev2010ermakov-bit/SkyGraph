@@ -1,11 +1,13 @@
 #pragma once 
 
-#include <SkyGraph.hpp>
+#include "Material.hpp"
 
-class UnlitMat : public Material{
-    public:
-        Texture2D* texture;
-        UnlitMat();
-        UnlitMat(Shader& shader);
-        void Bind() override;
-};
+namespace sky{
+    class UnlitMat : public Material{
+        public:
+            Texture2D* texture;
+            UnlitMat();
+            UnlitMat(Shader& shader);
+            void Bind() override;
+    };
+}

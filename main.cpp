@@ -1,10 +1,6 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/ext/vector_float3.hpp>
 #include <iostream>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "scripts/Loader/Loader.hpp"
 #include "scripts/CameraMover/CameraMover.hpp"
 
@@ -14,94 +10,66 @@ bool colorDebug;
 int currentColDebug;
 int currentColItem;
 
-Shader LitShader;
-Shader UnlitShader;
+sky::Shader LitShader;
+sky::Shader UnlitShader;
 
-UnlitMat PointMat;
-UnlitMat DirMat;
-UnlitMat Dir2Mat;
+sky::UnlitMat PointMat;
+sky::UnlitMat DirMat;
+sky::UnlitMat Dir2Mat;
 
-LitMat LightMat;
+sky::LitMat LightMat;
 
-DirectionLight dir;
-DirectionLight dir2;
-PointLight point;
-SpotLight flashlight;
+sky::DirectionLight dir;
+sky::DirectionLight dir2;
+sky::PointLight point;
+sky::SpotLight flashlight;
 bool flashlightTurn = true;
 
-Camera camera;
+sky::Camera camera;
+
 CameraMover mover;
-
-void frame_buffer_size_callback(GLFWwindow *window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-    camera.XtoY = (float)width/(float)height;
-    mover.lastx = (float)width/2;
-    mover.lasty = (float)height/2; 
-}
-
-void curs_callback(GLFWwindow* wind, double x, double y){
-    mover.onCursPosChanged(wind, x, y);
-}
 
 int main(int agrc, char *agrv[])
 {
-    camera = Camera(75, 800.f/600.f, 0.1f, 10000.f);  // Initializing camera class
-    Camera::SetMain(camera);                                            // Set new camera as a main  
+    sky::InitWindow("my window", 800, 600);
+
+    camera = sky::Camera(75, 0.1f, 10000.f);
+    sky::Camera::SetMain(camera);
     camera.position = glm::vec3(-3.31473, -1.567f, 6.05006f);
     camera.eulerAngles = glm::vec3(14.9043f, -61.7206f, 0.0f);
-    camera.background = Color(45, 138, 189);    //beauty blue color
+    camera.background = sky::Color(45, 138, 189);    //beauty blue color
     //camera.background = Color(209, 46, 33);    //beauty red color
     //camera.background = Color(20);
 
     curr_agrv = agrv[0];
-    glfwInit();                                                     // Initializing a glfw
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);                  // Set version of programm context to 3 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);                  //
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // Set Profile of programm context to core
+    
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "OpenGL 2D Render", NULL, NULL);    // Create a small window
-    glfwMakeContextCurrent(window);                                                     // Give a program focuse to window
-    glfwSetFramebufferSizeCallback(window, frame_buffer_size_callback);                 // Set a window scaling callback
+    mover = CameraMover();  // Create a class that moves the camera
+    mover.camera = &camera;
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))                            // Load glad function uses a glfw
-    {
-        std::cout << "Failed To init glad" << std::endl;                                // error log
-    }
-
-    mover = CameraMover(camera, *window);  // Create a class that moves the camera
-
-    glEnable(GL_DEPTH_TEST);    // enable an OpenGL depth test 
-
-    Model cube(GetFullPath("assets/models/cube/cube.obj"));
-
-    frame_buffer_size_callback(window, 800, 600);                                               // calling a window scaling callback to setup our program to res 800x600
-    glfwSwapInterval((float)1 / (float)144);                                                        // Setting Vsync for 144 hz monitor
+    sky::Model cube(GetFullPath("assets/models/cube/cube.obj"));
 
     bool polygon;
     float buttPand;
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, curs_callback);
-
-    Texture2D PugTex(GetFullPath("assets/textures/PugImage.png").c_str(), GL_RGBA, GL_LINEAR);         // Loading a Textures
-    Texture2D CatSpec(GetFullPath("assets/textures/catSpecular.png").c_str(), GL_RGBA, GL_LINEAR);     //
-    Texture2D EmissionMap(GetFullPath("assets/textures/EmissionMap.jpg").c_str(), GL_RGB, GL_LINEAR);  //
-    Texture2D CatTex(GetFullPath("assets/textures/catImage.jpg").c_str(), GL_RGB, GL_LINEAR);          //
-    Texture2D RockTex(GetFullPath("assets/textures/rockImage.jpg").c_str(), GL_RGB, GL_LINEAR);        // 
-    Texture2D CarTex(GetFullPath("assets/models/tiny-lowpoly-car/car-texture.png").c_str(), GL_RGBA, GL_NEAREST);
+    sky::Texture2D PugTex(GetFullPath("assets/textures/PugImage.png").c_str(), GL_RGBA, GL_LINEAR);         // Loading a Textures
+    sky::Texture2D CatSpec(GetFullPath("assets/textures/catSpecular.png").c_str(), GL_RGBA, GL_LINEAR);     //
+    sky::Texture2D EmissionMap(GetFullPath("assets/textures/EmissionMap.jpg").c_str(), GL_RGB, GL_LINEAR);  //
+    sky::Texture2D CatTex(GetFullPath("assets/textures/catImage.jpg").c_str(), GL_RGB, GL_LINEAR);          //
+    sky::Texture2D RockTex(GetFullPath("assets/textures/rockImage.jpg").c_str(), GL_RGB, GL_LINEAR);        // 
+    sky::Texture2D CarTex(GetFullPath("assets/models/tiny-lowpoly-car/car-texture.png").c_str(), GL_RGBA, GL_NEAREST);
 
     LitShader.Setup(GetFullPath("assets/shaders/Lit/VertShader.glsl").c_str(),
                  GetFullPath("assets/shaders/Lit/FragShader.glsl").c_str());
     UnlitShader.Setup(GetFullPath("assets/shaders/Unlit/UnlitVertShader.glsl").c_str(), 
                      GetFullPath("assets/shaders/Unlit/UnlitFragShader.glsl").c_str());
 
-    Transformable carTransformable;
+    sky::Transformable carTransformable;
     carTransformable.eulerAngles = glm::vec3(-180, 180, 0);
-    Model carModel(GetFullPath("assets/models/tiny-lowpoly-car/car.obj"));
+    sky::Model carModel(GetFullPath("assets/models/tiny-lowpoly-car/car.obj"));
 
     LightMat.SetShader(LitShader);
-    LightMat.color = Color(255);
+    LightMat.color = sky::Color(255);
 
     PointMat.SetShader(UnlitShader);
 
@@ -110,10 +78,10 @@ int main(int agrc, char *agrv[])
 
     LightMat.Shiness = 256.f;
     LightMat.Roughness = 1.f;
-    LightMat.ShadowColor = Color(50);
+    LightMat.ShadowColor = sky::Color(50);
     LightMat.DiffuseMap = &CarTex;
 
-    dir.color = Color(255.0f);
+    dir.color = sky::Color(255.0f);
     dir.eulerAngles.y = 90.f;
     dir.eulerAngles.x = 20;
     dir.scale = glm::vec3(0.3f);
@@ -121,11 +89,11 @@ int main(int agrc, char *agrv[])
 
     dir2.eulerAngles.y = -90;
     dir2.eulerAngles.x = 20;
-    dir2.color = Color(0.9569 * 255, 0.6549 * 255, 0.1686 * 255);
+    dir2.color = sky::Color(0.9569 * 255, 0.6549 * 255, 0.1686 * 255);
     dir2.scale = glm::vec3(0.3f);
     dir2.position -= dir2.getLocals().front * 3.f;
 
-    point.color = Color(0);
+    point.color = sky::Color(40, 200, 255);
     point.position = glm::vec3(7);
     point.constant = 1.0f;
     point.linear = 0.09f;
@@ -134,7 +102,7 @@ int main(int agrc, char *agrv[])
     point.position = glm::vec3(0.0f);
     point.scale = glm::vec3(0.1f);
 
-    flashlight.color = Color(255);
+    flashlight.color = sky::Color(255);
     flashlight.radius = 30.f;
     flashlight.smoothing = 0.1f;
 
@@ -149,43 +117,37 @@ int main(int agrc, char *agrv[])
     Dir2Mat.color = dir2.color;
     PointMat.color = point.color;
 
-    Transformable child, parent;
+    sky::Transformable child, parent;
     child.scale = glm::vec3(0.5f);
     parent.scale = glm::vec3(0.4f);
     child.SetParent(parent);    
     parent.position.x = 8;
     child.position.y = 2;
 
-    std::cout << CarTex.ID << "\n";
-    std::cout << LitShader.ID << "\n";
-
-    while (!glfwWindowShouldClose(window))
+    while (!sky::WindowShouldClose())
     {
-        sk::Time::Update();
-        DirectionLight::ShaderSet(LitShader);
-        PointLight::ShaderSet(LitShader);
-        SpotLight::ShaderSet(LitShader);
+        sky::Time::Update();
+        dir.BindToShader(LitShader, 0);
+        point.BindToShader(LitShader, 0);
+        flashlight.BindToShader(LitShader, 0);
 
-        glClearColor(camera.background.glCol4().r, camera.background.glCol4().g, camera.background.glCol4().b, camera.background.glCol4().a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-        mover.Update(sk::Time::deltaTime);
+        sky::ClearWindow(sky::Camera::main->background);
+        mover.Update();
         
-
         flashlight.position = camera.position;
         flashlight.eulerAngles = camera.eulerAngles;
 
         LightMat.Bind();
-        LitShader.SetVec3("camPos", Camera::main->position);                                               // Set a view pos
+        LitShader.SetVec3("camPos", sky::Camera::main->position);                                               // Set a view pos
         LitShader.SetMat4("u_Model", carTransformable.GetModelMat());                                              // Set Transformation matrix to shader
-        LitShader.SetMat4("u_View", Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
-        LitShader.SetMat4("u_Projection", Camera::main->GetProjection());
+        LitShader.SetMat4("u_View", sky::Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
+        LitShader.SetMat4("u_Projection", sky::Camera::main->GetProjection());
         carModel.Draw(LightMat);
 
         PointMat.Bind();
         UnlitShader.SetMat4("u_Model", point.GetModelMat());
-        UnlitShader.SetMat4("u_View", Camera::main->GetView());
-        UnlitShader.SetMat4("u_Projection", Camera::main->GetProjection());
+        UnlitShader.SetMat4("u_View", sky::Camera::main->GetView());
+        UnlitShader.SetMat4("u_Projection", sky::Camera::main->GetProjection());
         cube.Draw(PointMat);
 
         DirMat.Bind();
@@ -204,13 +166,12 @@ int main(int agrc, char *agrv[])
         UnlitShader.SetMat4("u_Model", child.GetModelMat());
         cube.Draw(Dir2Mat); 
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        sky::ShowWindow();
 
         if (buttPand > 0)
-            buttPand -= sk::Time::deltaTime;
+            buttPand -= sky::Time::deltaTime;
 
-        if (glfwGetKey(window, GLFW_KEY_TAB) && buttPand <= 0)     // Switching a polygon mode
+        if (sky::Input::GetKey(sky::keycode::TAB) && buttPand <= 0)     // Switching a polygon mode
         {                                                               // 
             polygon = !polygon;                                         //
             GLint mode = polygon ? GL_LINE : GL_FILL;
@@ -244,18 +205,18 @@ int main(int agrc, char *agrv[])
             buttPand = 0.2f;                                        //
         }                                                           //
         */
-        if (glfwGetKey(window, GLFW_KEY_F) && buttPand <= 0){
+        if (sky::Input::GetKey(sky::keycode::F) && buttPand <= 0){
             if (flashlightTurn){
-                flashlight.color = Color(0);
+                flashlight.color = sky::Color(0);
             }
             else{
-                flashlight.color = Color(255);
+                flashlight.color = sky::Color(255);
             }
             flashlightTurn = !flashlightTurn;
             buttPand = 0.2f;
         }
 
-        if (glfwGetKey(window, GLFW_KEY_L) && buttPand <= 0){
+        if (sky::Input::GetKey(sky::keycode::L) && buttPand <= 0){
             std::cout << "pos: " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
             std::cout << "rot: " << camera.eulerAngles.x << " " << camera.eulerAngles.y << " " << camera.eulerAngles.z << std::endl;
             buttPand = 0.2f;

@@ -4,44 +4,37 @@ CameraMover::CameraMover(){
 
 }
 
-CameraMover::CameraMover(Camera& cam, GLFWwindow& currWindow){
-    camera = &cam;
-    window = &currWindow;
-}
-
-void CameraMover::Update(float dt){
-    deltaTime = dt;
-    buttPand -= dt;
-    if (!window || !camera) return;
+void CameraMover::Update(){
+    if (camera == nullptr) return;
     keyboard_moving();
     mouse_moving();
 }
 
 void CameraMover::keyboard_moving(){
-    LocalVectors camLocals = camera->getLocals();
-    if (glfwGetKey(window, GLFW_KEY_W))
+    sky::LocalVectors camLocals = camera->getLocals();
+    if (sky::Input::GetKey(sky::keycode::W))
     {
-        camera->position += camLocals.front * deltaTime * 10.f;
+        camera->position += camLocals.front * sky::Time::deltaTime * 10.f;
     }
-    if (glfwGetKey(window, GLFW_KEY_S))
+    if (sky::Input::GetKey(sky::keycode::S))
     {
-        camera->position -= camLocals.front * deltaTime * 10.f;
+        camera->position -= camLocals.front * sky::Time::deltaTime * 10.f;
     }
-    if (glfwGetKey(window, GLFW_KEY_A))
+    if (sky::Input::GetKey(sky::keycode::A))
     {
-        camera->position -= glm::normalize(glm::cross(camLocals.front, camLocals.up)) * 10.f * deltaTime;
+        camera->position += camLocals.right * 10.f * sky::Time::deltaTime;
     }
-    if (glfwGetKey(window, GLFW_KEY_D))
+    if (sky::Input::GetKey(sky::keycode::D))
     {
-        camera->position += glm::normalize(glm::cross(camLocals.front, camLocals.up)) * 10.f * deltaTime;
+        camera->position -= camLocals.right * 10.f * sky::Time::deltaTime;
     }
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) && buttPand <= 0)
+    if (sky::Input::GetKey(sky::keycode::ESC) && buttPand <= 0)
     {
         if (CursHiden)
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            sky::Input::SetCursorMode(sky::cursMode::NORMAL);
         else
         {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            sky::Input::SetCursorMode(sky::cursMode::DISABLED);
             firstMouse = true;
         }
         CursHiden = CursHiden ? false : true;
@@ -52,30 +45,18 @@ void CameraMover::keyboard_moving(){
 void CameraMover::mouse_moving(){
     if (firstMouse)
     {
-        lastx = x;
-        lasty = y;
         firstMouse = false;
     }
 
-    float xoffset = x - lastx;
-    float yoffset = lasty - y;
-    lastx = x;
-    lasty = y;
+    glm::vec2 mouse_delta = sky::Input::GetMouseDeltaPosition() * mouse_sence;
 
-    xoffset *= mouse_sence;
-    yoffset *= mouse_sence;
     if (CursHiden)
     {
-        camera->eulerAngles.y -= xoffset;
-        camera->eulerAngles.x -= yoffset;
+        camera->eulerAngles.y -= mouse_delta.x;
+        camera->eulerAngles.x -= mouse_delta.y;
     }
     if (camera->eulerAngles.x >= 89.999f)
         camera->eulerAngles.x = 89.999f;
     else if (camera->eulerAngles.x <= -89.999f)
         camera->eulerAngles.x = -89.999f;
-}
-
-void CameraMover::onCursPosChanged(GLFWwindow* wind, double nx, double ny){
-    x = nx;
-    y = ny;
 }

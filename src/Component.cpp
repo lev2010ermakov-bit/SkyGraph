@@ -1,6 +1,6 @@
 #include <Component.hpp>
 
-namespace sk{
+namespace sky{
     Component::Component(Object& o) : thisObject(o){
         
     }

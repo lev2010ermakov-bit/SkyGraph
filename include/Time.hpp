@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sk{
+namespace sky{
     class Time{
         private:
             static float lastTime;

@@ -3,19 +3,19 @@
 TransMover::TransMover(){
 
 }
-TransMover::TransMover(Transformable& target){
+TransMover::TransMover(sky::Transformable& target){
     Target = &target;
 }
-void TransMover::Update(float deltaTime, GLFWwindow* window){
+void TransMover::Update(){
     if (Target == nullptr) return;
 
-    buttPand -= deltaTime;
+    buttPand -= sky::Time::deltaTime;
 
     if (buttPand < 0) 
         buttPand = 0;
     
 
-    if (glfwGetKey(window, GLFW_KEY_T) && buttPand <= 0){
+    if (sky::Input::GetKey(sky::keycode::T) && buttPand <= 0){
         inWork = !inWork;
         if (inWork)
             std::cout << "TransMover Enabled" << std::endl;
@@ -26,37 +26,37 @@ void TransMover::Update(float deltaTime, GLFWwindow* window){
 
     if (inWork){
 
-        if (glfwGetKey(window, GLFW_KEY_P)){
+        if (sky::Input::GetKey(sky::keycode::P)){
             currentOption = 0;
             std::cout << "Target.position" << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_R)){
+        if (sky::Input::GetKey(sky::keycode::R)){
             currentOption = 1;
             std::cout << "Target.rotation" << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_U)){
+        if (sky::Input::GetKey(sky::keycode::U)){
             currentOption = 2;
             std::cout << "Target.scale" << std::endl;
         }
 
         glm::vec3 input(0.f);
-        input.x = glfwGetKey(window, GLFW_KEY_W) ? 1 : (glfwGetKey(window, GLFW_KEY_S) ? -1 : 0);
-        input.y = glfwGetKey(window, GLFW_KEY_D) ? 1 : (glfwGetKey(window, GLFW_KEY_A) ? -1 : 0);
-        input.z = glfwGetKey(window, GLFW_KEY_E) ? 1 : (glfwGetKey(window, GLFW_KEY_Q) ? -1 : 0);
+        input.x = sky::Input::GetKey(sky::keycode::W) ? 1 : (sky::Input::GetKey(sky::keycode::S) ? -1 : 0);
+        input.y = sky::Input::GetKey(sky::keycode::D) ? 1 : (sky::Input::GetKey(sky::keycode::A) ? -1 : 0);
+        input.z = sky::Input::GetKey(sky::keycode::E) ? 1 : (sky::Input::GetKey(sky::keycode::Q) ? -1 : 0);
 
         switch (currentOption){
             case 0:
-                Target->position += input * deltaTime;
+                Target->position += input * sky::Time::deltaTime;
                 break;
             case 1:
-                Target->eulerAngles += input * deltaTime * 5.f;
+                Target->eulerAngles += input * sky::Time::deltaTime * 5.f;
                 break;
             case 2:
-                Target->scale += input * deltaTime;
+                Target->scale += input * sky::Time::deltaTime;
                 break;
         }
 
-        if (glfwGetKey(window, GLFW_KEY_L)){
+        if (sky::Input::GetKey(sky::keycode::L) && buttPand <= 0){
             switch (currentOption){
                 case 0:
                     std::cout << "Position" << " x " << Target->position.x << " y " << Target->position.y << " z " << Target->position.z << std::endl;
@@ -68,6 +68,7 @@ void TransMover::Update(float deltaTime, GLFWwindow* window){
                     std::cout << "Scale" << " x " << Target->scale.x << " y " << Target->scale.y << " z " << Target->scale.z << std::endl;
                     break;
             }
+            buttPand = 0.2f;
         }
     }
 }

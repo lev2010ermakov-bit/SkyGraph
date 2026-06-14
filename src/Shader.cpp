@@ -7,236 +7,237 @@
 #include <fstream>
 #include <sstream>
 
+namespace sky{
+    // ---------- CONSTRUCTORS ---------- //
 
-// ---------- CONSTRUCTORS ---------- //
-
-Shader::Shader(){
-}
-
-Shader::Shader(const Shader&& other){
-    ID = other.ID;
-}
-
-Shader::Shader(const Shader& other){
-    VertSourceString = other.VertSourceString;
-    FragSourceString = other.FragSourceString;
-
-    const char* VertChars = VertSourceString.c_str();
-    const char* FragChars = FragSourceString.c_str();
-
-    unsigned int vertshade, fragshade;
-    ID = glCreateProgram();
-
-    vertshade = glCreateShader(GL_VERTEX_SHADER);
-    fragshade = glCreateShader(GL_FRAGMENT_SHADER);
-
-    glShaderSource(vertshade, 1, &VertChars, NULL);
-    glCompileShader(vertshade);
-    ShaderLog(vertshade);
-
-    glShaderSource(fragshade, 1, &FragChars, NULL);
-    glCompileShader(fragshade);
-    ShaderLog(fragshade);
-
-    glAttachShader(ID, vertshade);
-    glAttachShader(ID, fragshade);
-    glLinkProgram(ID);
-
-    glDeleteShader(vertshade);
-    glDeleteShader(vertshade);
-    SetInt("u_Material.DiffuseMap", 0);
-    SetInt("u_Material.SpecularMap", 1);
-    SetInt("u_Material.EmissionMap", 2);
-}
-
-Shader::Shader(const char* VertPath, const char* FragPath){
-    Setup(VertPath, FragPath);
-}
-
-
-// ---------- CONTROL FUNCTIONS ---------- //
-
-void Shader::Setup(const char* VertPath, const char* FragPath){
-    std::ifstream VertFile, FragFile;
-    std::string VertString, FragString;
-
-    VertFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    FragFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-    try{
-        VertFile.open(VertPath);
-        FragFile.open(FragPath);
-
-        std::stringstream VertStream, FragStream;
-
-        VertStream << VertFile.rdbuf();
-        FragStream << FragFile.rdbuf();
-
-        VertFile.close();
-        FragFile.close();
-
-        VertString = VertStream.str();
-        FragString = FragStream.str();
-
-        VertSourceString = VertString;
-        FragSourceString = FragString;
-    }
-    catch(std::ifstream::failure& ex){
-        std::cout << "Failed To Read Shader Files:" << VertPath << " " << FragPath << std::endl;
-        return;
+    Shader::Shader(){
     }
 
-    const char* VertSource = VertString.c_str();
-    const char* FragSource = FragString.c_str();
+    Shader::Shader(const Shader&& other){
+        ID = other.ID;
+    }
 
-    unsigned int VertShader, FragShader;
-    ID = glCreateProgram();
+    Shader::Shader(const Shader& other){
+        VertSourceString = other.VertSourceString;
+        FragSourceString = other.FragSourceString;
 
-    VertShader = glCreateShader(GL_VERTEX_SHADER);
-    FragShader = glCreateShader(GL_FRAGMENT_SHADER);
+        const char* VertChars = VertSourceString.c_str();
+        const char* FragChars = FragSourceString.c_str();
 
-    glShaderSource(VertShader, 1, &VertSource, NULL);
-    glCompileShader(VertShader);
-    ShaderLog(VertShader);
+        unsigned int vertshade, fragshade;
+        ID = glCreateProgram();
+
+        vertshade = glCreateShader(GL_VERTEX_SHADER);
+        fragshade = glCreateShader(GL_FRAGMENT_SHADER);
+
+        glShaderSource(vertshade, 1, &VertChars, NULL);
+        glCompileShader(vertshade);
+        ShaderLog(vertshade);
+
+        glShaderSource(fragshade, 1, &FragChars, NULL);
+        glCompileShader(fragshade);
+        ShaderLog(fragshade);
+
+        glAttachShader(ID, vertshade);
+        glAttachShader(ID, fragshade);
+        glLinkProgram(ID);
+
+        glDeleteShader(vertshade);
+        glDeleteShader(vertshade);
+        SetInt("u_Material.DiffuseMap", 0);
+        SetInt("u_Material.SpecularMap", 1);
+        SetInt("u_Material.EmissionMap", 2);
+    }
+
+    Shader::Shader(const char* VertPath, const char* FragPath){
+        Setup(VertPath, FragPath);
+    }
+
+
+    // ---------- CONTROL FUNCTIONS ---------- //
+
+    void Shader::Setup(const char* VertPath, const char* FragPath){
+        std::ifstream VertFile, FragFile;
+        std::string VertString, FragString;
+
+        VertFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        FragFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+        try{
+            VertFile.open(VertPath);
+            FragFile.open(FragPath);
+
+            std::stringstream VertStream, FragStream;
+
+            VertStream << VertFile.rdbuf();
+            FragStream << FragFile.rdbuf();
+
+            VertFile.close();
+            FragFile.close();
+
+            VertString = VertStream.str();
+            FragString = FragStream.str();
+
+            VertSourceString = VertString;
+            FragSourceString = FragString;
+        }
+        catch(std::ifstream::failure& ex){
+            std::cout << "Failed To Read Shader Files:" << VertPath << " " << FragPath << std::endl;
+            return;
+        }
+
+        const char* VertSource = VertString.c_str();
+        const char* FragSource = FragString.c_str();
+
+        unsigned int VertShader, FragShader;
+        ID = glCreateProgram();
+
+        VertShader = glCreateShader(GL_VERTEX_SHADER);
+        FragShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+        glShaderSource(VertShader, 1, &VertSource, NULL);
+        glCompileShader(VertShader);
+        ShaderLog(VertShader);
     
-    glShaderSource(FragShader, 1, &FragSource, NULL);
-    glCompileShader(FragShader);
-    ShaderLog(FragShader);
+        glShaderSource(FragShader, 1, &FragSource, NULL);
+        glCompileShader(FragShader);
+        ShaderLog(FragShader);
 
-    glAttachShader(ID, VertShader);
-    glAttachShader(ID, FragShader);
-    glLinkProgram(ID);
+        glAttachShader(ID, VertShader);
+        glAttachShader(ID, FragShader);
+        glLinkProgram(ID);
 
-    glDeleteShader(VertShader);
-    glDeleteShader(FragShader);
-    SetInt("u_Material.DiffuseMap", 0);
-    SetInt("u_Material.SpecularMap", 1);
-    SetInt("u_Material.EmissionMap", 2);
-}
+        glDeleteShader(VertShader);
+        glDeleteShader(FragShader);
+        SetInt("u_Material.DiffuseMap", 0);
+        SetInt("u_Material.SpecularMap", 1);
+        SetInt("u_Material.EmissionMap", 2);
+    }
 
-void Shader::use(){
-    glUseProgram(ID);
-}
+    void Shader::use(){
+        glUseProgram(ID);
+    }
 
-// ----------   VECTORS   ---------- //
+    // ----------   VECTORS   ---------- //
 
-void Shader::SetVec2(const char* name, float value[2]){                                         // VECTOR 2
-    glUseProgram(ID);
-    glUniform2f(glGetUniformLocation(ID, name), value[0], value[1]);
-}
-void Shader::SetVec2(const char* name, glm::vec2 value){
-    glUseProgram(ID);
-    glUniform2f(glGetUniformLocation(ID, name), value.x, value.y);
-}
-
-
-void Shader::SetVec3(const char* name, float value[3]){                                         // VECTOR 3
-    glUseProgram(ID);  
-    glUniform3f(glGetUniformLocation(ID, name), value[0], value[1], value[2]);
-}
-void Shader::SetVec3(const char* name, glm::vec3 value){
-    glUseProgram(ID);
-    glUniform3f(glGetUniformLocation(ID, name), value.x, value.y, value.z);
-}
+    void Shader::SetVec2(const char* name, float value[2]){                                         // VECTOR 2
+        glUseProgram(ID);
+        glUniform2f(glGetUniformLocation(ID, name), value[0], value[1]);
+    }
+    void Shader::SetVec2(const char* name, glm::vec2 value){
+        glUseProgram(ID);
+        glUniform2f(glGetUniformLocation(ID, name), value.x, value.y);
+    }
 
 
-void Shader::SetVec4(const char* name, float value[4]){                                         // VECTOR 4
-    glUseProgram(ID);
-    glUniform4f(glGetUniformLocation(ID, name), value[0], value[1], value[2], value[3]);
-}
-void Shader::SetVec4(const char* name, glm::vec4 value){
-    glUseProgram(ID);
-    glUniform4f(glGetUniformLocation(ID, name), value.x, value.y, value.z, value.a);
-}
+    void Shader::SetVec3(const char* name, float value[3]){                                         // VECTOR 3
+        glUseProgram(ID);  
+        glUniform3f(glGetUniformLocation(ID, name), value[0], value[1], value[2]);
+    }
+    void Shader::SetVec3(const char* name, glm::vec3 value){
+        glUseProgram(ID);
+        glUniform3f(glGetUniformLocation(ID, name), value.x, value.y, value.z);
+    }
 
 
-// ----------   MATRIX   ---------- //
-
-void Shader::SetMat3(const char* name, glm::mat3 value){                                        // MATRIX 3x3
-    glUseProgram(ID);
-    glUniformMatrix3fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(value));
-}
-
-void Shader::SetMat4(const char* name, glm::mat4 value){                                        // MATRIX 4x4
-    glUseProgram(ID);
-    glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(value));
-}
+    void Shader::SetVec4(const char* name, float value[4]){                                         // VECTOR 4
+        glUseProgram(ID);
+        glUniform4f(glGetUniformLocation(ID, name), value[0], value[1], value[2], value[3]);
+    }
+    void Shader::SetVec4(const char* name, glm::vec4 value){
+        glUseProgram(ID);
+        glUniform4f(glGetUniformLocation(ID, name), value.x, value.y, value.z, value.a);
+    }
 
 
-// ----------   FUNDAMENTAL TYPES   ---------- //
+    // ----------   MATRIX   ---------- //
 
-void Shader::SetFloat(const char* name, float value){                                           // FLOAT
-    glUseProgram(ID);
-    glUniform1f(glGetUniformLocation(ID, name), value);   
-}
-void Shader::SetBool(const char* name, bool value){                                             // BOOL                  
-    glUseProgram(ID);
-    glUniform1i(glGetUniformLocation(ID, name), value);
-}
-void Shader::SetInt(const char* name, int value){                                               // INT
-    glUseProgram(ID);
-    glUniform1i(glGetUniformLocation(ID, name), value);
-}
+    void Shader::SetMat3(const char* name, glm::mat3 value){                                        // MATRIX 3x3
+        glUseProgram(ID);
+        glUniformMatrix3fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(value));
+    }
+
+    void Shader::SetMat4(const char* name, glm::mat4 value){                                        // MATRIX 4x4
+        glUseProgram(ID);
+        glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(value));
+    }
 
 
-// ----------   CUSTOM TYPES ---------- //
+    // ----------   FUNDAMENTAL TYPES   ---------- //
 
-void Shader::SetColor(const char* name, Color col){                                             // COLOR
-    SetVec4(name, (float[]){(float)col.r/(float)255, (float)col.g/(float)255, (float)col.b/(float)255, (float)col.a/(float)255});
-}
-
-void Shader::SetColor(const char* name, float col[4]){
-    SetVec4(name, {col[0]/255.f, col[1]/255.f, col[2]/255.f, col[3]/255.f});
-}
-
-// ----------  MEMORY SAFETY  ---------- //
-
-Shader& Shader::operator=(Shader&& other){
-    if (ID != 0) glDeleteProgram(ID);
-    ID = other.ID;
-    VertSourceString = other.VertSourceString;
-    FragSourceString = other.FragSourceString;
-    return *this;
-}
-
-Shader& Shader::operator=(const Shader& other){
-    if (ID != 0) glDeleteProgram(ID);
-    VertSourceString = other.VertSourceString;
-    FragSourceString = other.FragSourceString;
-
-    ID = glCreateProgram();
-    unsigned int vs, fs;
-    vs = glCreateShader(GL_VERTEX_SHADER);
-    fs = glCreateShader(GL_FRAGMENT_SHADER);
-
-    const char* vert_source = VertSourceString.c_str();
-    const char* frag_source = FragSourceString.c_str();
-
-    glShaderSource(vs, 1, &vert_source, NULL);
-    glCompileShader(vs);
-
-    glShaderSource(fs, 1, &frag_source, NULL);
-    glCompileShader(fs);
-
-    glAttachShader(ID, vs);
-    glAttachShader(ID, fs);
-    glLinkProgram(ID);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return *this;
-}
+    void Shader::SetFloat(const char* name, float value){                                           // FLOAT
+        glUseProgram(ID);
+        glUniform1f(glGetUniformLocation(ID, name), value);   
+    }
+    void Shader::SetBool(const char* name, bool value){                                             // BOOL                  
+        glUseProgram(ID);
+        glUniform1i(glGetUniformLocation(ID, name), value);
+    }
+    void Shader::SetInt(const char* name, int value){                                               // INT
+        glUseProgram(ID);
+        glUniform1i(glGetUniformLocation(ID, name), value);
+    }
 
 
-// ---------- LOG ---------- //
-void ShaderLog(int Shader){
-    char log[512];
-    int succsess;
+    // ----------   CUSTOM TYPES ---------- //
 
-    glGetShaderiv(Shader, GL_COMPILE_STATUS, &succsess);
-    if (!succsess){
-        glGetShaderInfoLog(Shader, 512, NULL, log);
-        std::cout << "Failed To Compile Shader id=" << Shader << " Cause: " << log << std::endl;
+    void Shader::SetColor(const char* name, Color col){                                             // COLOR
+        SetVec4(name, (float[]){(float)col.r/(float)255, (float)col.g/(float)255, (float)col.b/(float)255, (float)col.a/(float)255});
+    }
+
+    void Shader::SetColor(const char* name, float col[4]){
+        SetVec4(name, {col[0]/255.f, col[1]/255.f, col[2]/255.f, col[3]/255.f});
+    }
+
+    // ----------  MEMORY SAFETY  ---------- //
+
+    Shader& Shader::operator=(Shader&& other){
+        if (ID != 0) glDeleteProgram(ID);
+        ID = other.ID;
+        VertSourceString = other.VertSourceString;
+        FragSourceString = other.FragSourceString;
+        return *this;
+    }
+
+    Shader& Shader::operator=(const Shader& other){
+        if (ID != 0) glDeleteProgram(ID);
+        VertSourceString = other.VertSourceString;
+        FragSourceString = other.FragSourceString;
+
+        ID = glCreateProgram();
+        unsigned int vs, fs;
+        vs = glCreateShader(GL_VERTEX_SHADER);
+        fs = glCreateShader(GL_FRAGMENT_SHADER);
+
+        const char* vert_source = VertSourceString.c_str();
+        const char* frag_source = FragSourceString.c_str();
+
+        glShaderSource(vs, 1, &vert_source, NULL);
+        glCompileShader(vs);
+
+        glShaderSource(fs, 1, &frag_source, NULL);
+        glCompileShader(fs);
+
+        glAttachShader(ID, vs);
+        glAttachShader(ID, fs);
+        glLinkProgram(ID);
+
+        glDeleteShader(vs);
+        glDeleteShader(fs);
+
+        return *this;
+    }
+
+
+    // ---------- LOG ---------- //
+    void ShaderLog(int Shader){
+        char log[512];
+        int succsess;
+
+        glGetShaderiv(Shader, GL_COMPILE_STATUS, &succsess);
+        if (!succsess){
+            glGetShaderInfoLog(Shader, 512, NULL, log);
+            std::cout << "Failed To Compile Shader id=" << Shader << " Cause: " << log << std::endl;
+        }
     }
 }

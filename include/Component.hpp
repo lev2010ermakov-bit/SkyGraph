@@ -1,11 +1,11 @@
 #pragma once
 
-namespace sk{
+namespace sky{
     class Object;
 
     class Component{
         private:
-            sk::Object& thisObject;
+            sky::Object& thisObject;
         public:
             Component(Object& node);
             Object& GetObject();

@@ -1,22 +1,17 @@
 #pragma once
 
-#include <SkyGraph.hpp>
-#include <vector>
+#include "LightSource.hpp"
 
-class SpotLight : public LightSource{
-    private:
-        static std::vector<SpotLight*> instances;
-        static int LightsMatchingCount;
+namespace sky{
+    class SpotLight : public LightSource{
+        public:
+            float constant;
+            float linear;
+            float quadratic;
 
-        void BindToShader(Shader& shader, int id) override;
-        void destroy();
-    public:
-        float constant;
-        float linear;
-        float quadratic;
-
-        float radius;
-        float smoothing;
-        SpotLight();
-        static void ShaderSet(Shader& shader);
-};
+            float radius;
+            float smoothing;
+            SpotLight();
+            void BindToShader(Shader& shader, int id) override;
+    };
+}

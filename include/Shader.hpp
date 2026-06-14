@@ -10,57 +10,58 @@
 #include <stdint.h>
 #include <Texture.hpp>
 
+namespace sky{
+    struct Color{
+        uint8_t r = 255, g = 255, b = 255, a = 255;
+        Color(){}
+        Color(uint8_t scalar) {r = scalar; g = scalar; b = scalar; a = 255; };
+        Color(uint8_t red, uint8_t green, uint8_t blue){ r = red; g = green; b = blue; a = 255; } 
+        Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {r = red; g = green; b = blue; a = alpha; }
+        glm::vec3 glCol3() {return glm::vec3(static_cast<float>(r)/255.f, static_cast<float>(g)/255.f, static_cast<float>(b)/255.f);}
+        glm::vec4 glCol4() {return glm::vec4(static_cast<float>(r)/255.f, static_cast<float>(g)/255.f, static_cast<float>(b)/255.f, static_cast<float>(a)/255.f); }
+    };
 
-struct Color{
-    uint8_t r = 255, g = 255, b = 255, a = 255;
-    Color(){}
-    Color(uint8_t scalar) {r = scalar; g = scalar; b = scalar; a = 255; };
-    Color(uint8_t red, uint8_t green, uint8_t blue){ r = red; g = green; b = blue; a = 255; } 
-    Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {r = red; g = green; b = blue; a = alpha; }
-    glm::vec3 glCol3() {return glm::vec3(static_cast<float>(r)/255.f, static_cast<float>(g)/255.f, static_cast<float>(b)/255.f);}
-    glm::vec4 glCol4() {return glm::vec4(static_cast<float>(r)/255.f, static_cast<float>(g)/255.f, static_cast<float>(b)/255.f, static_cast<float>(a)/255.f); }
-};
+    class Shader{
+        private:
+            std::string VertSourceString;
+            std::string FragSourceString;
+        public:
+            unsigned int ID = 0;
 
-class Shader{
-    private:
-        std::string VertSourceString;
-        std::string FragSourceString;
-    public:
-        unsigned int ID = 0;
+            Shader();
+            Shader(const Shader& other);
+            Shader(const Shader&& other);
+            Shader(const char* VertPath, const char* FragPath);
 
-        Shader();
-        Shader(const Shader& other);
-        Shader(const Shader&& other);
-        Shader(const char* VertPath, const char* FragPath);
-
-        void Setup(const char* VertPath, const char* FragPath);
+            void Setup(const char* VertPath, const char* FragPath);
         
-        void use();
+            void use();
 
-        void SetFloat(const char* name, float value);
+            void SetFloat(const char* name, float value);
         
-        void SetVec2(const char* name, float value[2]);
-        void SetVec2(const char* name, glm::vec2 value);
+            void SetVec2(const char* name, float value[2]);
+            void SetVec2(const char* name, glm::vec2 value);
         
-        void SetVec3(const char* name, float value[3]);
-        void SetVec3(const char* name, glm::vec3 value);
+            void SetVec3(const char* name, float value[3]);
+            void SetVec3(const char* name, glm::vec3 value);
 
-        void SetVec4(const char* name, float value[4]);
-        void SetVec4(const char* name, glm::vec4 value);
+            void SetVec4(const char* name, float value[4]);
+            void SetVec4(const char* name, glm::vec4 value);
 
-        void SetMat3(const char* name, glm::mat3 value);
-        void SetMat4(const char* name, glm::mat4 value);
+            void SetMat3(const char* name, glm::mat3 value);
+            void SetMat4(const char* name, glm::mat4 value);
 
-        void SetBool(const char* name, bool value);
-        void SetInt(const char* name, int value);
+            void SetBool(const char* name, bool value);
+            void SetInt(const char* name, int value);
 
-        void SetColor(const char* name, Color col);
-        void SetColor(const char* name, float col[4]);
+            void SetColor(const char* name, Color col);
+            void SetColor(const char* name, float col[4]);
 
-        Shader& operator=(const Shader& other);
-        Shader& operator=(Shader&& other);
-};
+            Shader& operator=(const Shader& other);
+            Shader& operator=(Shader&& other);
+    };
 
-void ShaderLog(int Shader);
+    void ShaderLog(int Shader);
 
-std::string GetFullPath(const char* localPath);
+    std::string GetFullPath(const char* localPath);
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Destroy.hpp"
+#include <glad/glad.h>
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "Transformable.hpp"
@@ -17,3 +17,12 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Time.hpp"
+#include "Input.hpp"
+
+namespace sky{
+    void InitWindow(const char* title, unsigned int width, unsigned int height);
+    bool WindowShouldClose();
+
+    void ClearWindow(Color color);
+    void ShowWindow();
+}

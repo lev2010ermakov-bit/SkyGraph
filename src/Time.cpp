@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 
 
-namespace sk{
+namespace sky{
     float Time::lastTime = 0;
     float Time::deltaTime = 0;
     Time* Time::instance = nullptr;
