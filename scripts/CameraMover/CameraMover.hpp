@@ -17,7 +17,7 @@ class CameraMover{
     public:
         CameraMover();
         void Update();
-        sky::Camera* camera;
+        sky::Object* camera;
         bool firstMouse = true, CursHiden = true;
         float mouse_sence = 0.1f, buttPand;
     private:

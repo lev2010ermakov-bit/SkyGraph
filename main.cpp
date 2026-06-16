@@ -1,10 +1,9 @@
-#include <glm/ext/vector_float3.hpp>
-#include <iostream>
-#include <glm/glm.hpp>
-#include "scripts/Loader/Loader.hpp"
-#include "scripts/CameraMover/CameraMover.hpp"
-
 #include <SkyGraph.hpp>
+#include <iostream>
+
+#include "scripts/CameraMover/CameraMover.hpp"
+#include "scripts/Loader/Loader.hpp"
+
 
 bool colorDebug;
 int currentColDebug;
@@ -25,38 +24,52 @@ sky::PointLight point;
 sky::SpotLight flashlight;
 bool flashlightTurn = true;
 
-sky::Camera camera;
+sky::Object camera;
 
 CameraMover mover;
 
 int main(int agrc, char *agrv[])
 {
+    std::cout << "main started" << std::endl;
     sky::InitWindow("my window", 800, 600);
-
-    camera = sky::Camera(75, 0.1f, 10000.f);
-    sky::Camera::SetMain(camera);
+    std::cout << "window inited" << std::endl;
+    camera.AddComponent<sky::Camera>();
+    std::cout << "added camera component" << std::endl;
+    sky::Camera* camcomp = camera.GetComponent<sky::Camera>();     //// UNWORKING SHIT!!!
+    std::cout << "getted camera component " << camcomp << std::endl;
+    camcomp->Fov = 75;
+    std::cout << "setted fov" << std::endl;
+    camcomp->Near = 0.1f;
+    std::cout << "setted near" << std::endl;
+    camcomp->Far = 200.f;
+    std::cout << "setted far" << std::endl;
+    camcomp->background = sky::Color(45, 138, 189);    //beauty blue color
+    std::cout << "camera component setted" << std::endl;
+    
+    sky::Camera::SetMain(*camcomp);
     camera.position = glm::vec3(-3.31473, -1.567f, 6.05006f);
     camera.eulerAngles = glm::vec3(14.9043f, -61.7206f, 0.0f);
-    camera.background = sky::Color(45, 138, 189);    //beauty blue color
     //camera.background = Color(209, 46, 33);    //beauty red color
     //camera.background = Color(20);
 
     curr_agrv = agrv[0];
     
 
-    mover = CameraMover();  // Create a class that moves the camera
+    mover = CameraMover();
     mover.camera = &camera;
+
+    std::cout << "camera mover setted with camera as an Object" << std::endl;
 
     sky::Model cube(GetFullPath("assets/models/cube/cube.obj"));
 
     bool polygon;
     float buttPand;
 
-    sky::Texture2D PugTex(GetFullPath("assets/textures/PugImage.png").c_str(), GL_RGBA, GL_LINEAR);         // Loading a Textures
-    sky::Texture2D CatSpec(GetFullPath("assets/textures/catSpecular.png").c_str(), GL_RGBA, GL_LINEAR);     //
-    sky::Texture2D EmissionMap(GetFullPath("assets/textures/EmissionMap.jpg").c_str(), GL_RGB, GL_LINEAR);  //
-    sky::Texture2D CatTex(GetFullPath("assets/textures/catImage.jpg").c_str(), GL_RGB, GL_LINEAR);          //
-    sky::Texture2D RockTex(GetFullPath("assets/textures/rockImage.jpg").c_str(), GL_RGB, GL_LINEAR);        // 
+    sky::Texture2D PugTex(GetFullPath("assets/textures/PugImage.png").c_str(), GL_RGBA, GL_LINEAR);
+    sky::Texture2D CatSpec(GetFullPath("assets/textures/catSpecular.png").c_str(), GL_RGBA, GL_LINEAR);
+    sky::Texture2D EmissionMap(GetFullPath("assets/textures/EmissionMap.jpg").c_str(), GL_RGB, GL_LINEAR);
+    sky::Texture2D CatTex(GetFullPath("assets/textures/catImage.jpg").c_str(), GL_RGB, GL_LINEAR);
+    sky::Texture2D RockTex(GetFullPath("assets/textures/rockImage.jpg").c_str(), GL_RGB, GL_LINEAR);
     sky::Texture2D CarTex(GetFullPath("assets/models/tiny-lowpoly-car/car-texture.png").c_str(), GL_RGBA, GL_NEAREST);
 
     LitShader.Setup(GetFullPath("assets/shaders/Lit/VertShader.glsl").c_str(),
@@ -138,9 +151,9 @@ int main(int agrc, char *agrv[])
         flashlight.eulerAngles = camera.eulerAngles;
 
         LightMat.Bind();
-        LitShader.SetVec3("camPos", sky::Camera::main->position);                                               // Set a view pos
-        LitShader.SetMat4("u_Model", carTransformable.GetModelMat());                                              // Set Transformation matrix to shader
-        LitShader.SetMat4("u_View", sky::Camera::main->GetView());                                              // Set View matrix to make a camera moving effect
+        LitShader.SetVec3("camPos", camera.position);
+        LitShader.SetMat4("u_Model", carTransformable.GetModelMat());
+        LitShader.SetMat4("u_View", sky::Camera::main->GetView());
         LitShader.SetMat4("u_Projection", sky::Camera::main->GetProjection());
         carModel.Draw(LightMat);
 
@@ -171,40 +184,14 @@ int main(int agrc, char *agrv[])
         if (buttPand > 0)
             buttPand -= sky::Time::deltaTime;
 
-        if (sky::Input::GetKey(sky::keycode::TAB) && buttPand <= 0)     // Switching a polygon mode
-        {                                                               // 
-            polygon = !polygon;                                         //
+        if (sky::Input::GetKey(sky::keycode::TAB) && buttPand <= 0)
+        {
+            polygon = !polygon;
             GLint mode = polygon ? GL_LINE : GL_FILL;
             glPolygonMode(GL_FRONT_AND_BACK, mode);
-            buttPand = 0.2f;                                            //
-        }
-        /*
-        if (glfwGetKey(window, GLFW_KEY_1) && buttPand <= 0)    // Switching to Cat texture
-        {
-            LightMat.color = Color(255);
-            LightMat.DiffuseMap = &CatTex;
             buttPand = 0.2f;
         }
 
-        if (glfwGetKey(window, GLFW_KEY_2) && buttPand <= 0)    // Switching to Pug texture
-        {
-            LightMat.color = Color(255);
-            LightMat.DiffuseMap = &PugTex;                       //
-            buttPand = 0.2f;                                         //
-        }                                                            //
-
-        if (glfwGetKey(window, GLFW_KEY_3) && buttPand <= 0){
-            LightMat.color = Color(255);
-            LightMat.DiffuseMap = &RockTex;
-            buttPand = 0.2f;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_4) && buttPand <= 0){   // Switching to Monochrome mode
-            LightMat.color = Color(116, 155, 63);
-            LightMat.DiffuseMap = nullptr;
-            buttPand = 0.2f;                                        //
-        }                                                           //
-        */
         if (sky::Input::GetKey(sky::keycode::F) && buttPand <= 0){
             if (flashlightTurn){
                 flashlight.color = sky::Color(0);
@@ -220,7 +207,7 @@ int main(int agrc, char *agrv[])
             std::cout << "pos: " << camera.position.x << " " << camera.position.y << " " << camera.position.z << std::endl;
             std::cout << "rot: " << camera.eulerAngles.x << " " << camera.eulerAngles.y << " " << camera.eulerAngles.z << std::endl;
             buttPand = 0.2f;
-        }                         //
+        }
     }
     return 0;
 }

@@ -3,6 +3,7 @@
 #include "Component.hpp"
 #include <glm/glm.hpp>
 #include <vector>
+#include <string>
 #include <iostream>
 
 namespace sky{
@@ -10,18 +11,18 @@ namespace sky{
     
     class Object{
         private:
-            static Object* scene;
             Object* parent;
             std::vector<Object> childs;
             std::vector<Component> components;
         public:
+            std::string name;
             glm::vec3 position;
             glm::vec3 eulerAngles;
             glm::vec3 scale;
 
-            glm::vec3 front;
-            glm::vec3 right;
-            glm::vec3 up;
+            glm::vec3 front();
+            glm::vec3 right();
+            glm::vec3 up();
 
             Object();
 
@@ -32,15 +33,17 @@ namespace sky{
             void SetParent(Object* parent);
             Object* GetParent();
 
-            void UpdateLocalVectors();
             glm::mat4 GetModelMat();
 
             template<typename T>
             void AddComponent(){
+                std::cout << "start to add component" << std::endl;
                 T res(*this);
-                if (!dynamic_cast<Component*>(res)){
+                std::cout << "T instance created" << std::endl;
+                if (!dynamic_cast<Component*>(&res)){
                     std::cout << "this type is not Component. adding to object aborted!\n";
                 }
+                std::cout << "casted to component" << std::endl;
                 components.push_back(static_cast<Component>(res));
             }
 

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "Transformable.hpp"
@@ -14,7 +17,7 @@
 #include "LitMat.hpp"
 #include "Model.hpp"
 #include "Mesh.hpp"
-#include <GLFW/glfw3.h>
+#include "Object.hpp"
 #include <iostream>
 #include "Time.hpp"
 #include "Input.hpp"

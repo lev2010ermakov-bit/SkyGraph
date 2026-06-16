@@ -4,11 +4,11 @@
 #include <glm/glm.hpp>
 
 namespace sky{
-const glm::vec3 World_up = glm::vec3(0.0f, 1.0f, 0.0f);
+    //const glm::vec3 World_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
     struct LocalVectors{
         LocalVectors(){
-            up = World_up;
+            up = glm::vec3(0.0f, 1.0f, 0.0f);
             front = glm::vec3(0, 0, 1);
             right = glm::vec3(1, 0, 0);
         }

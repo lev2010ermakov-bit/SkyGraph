@@ -4,7 +4,7 @@ namespace sky{
     class Object;
 
     class Component{
-        private:
+        protected:
             sky::Object& thisObject;
         public:
             Component(Object& node);

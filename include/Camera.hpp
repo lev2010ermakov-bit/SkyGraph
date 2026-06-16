@@ -1,18 +1,18 @@
 #pragma once
 
+#include "Component.hpp"
 #include "Shader.hpp"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Transformable.hpp"
 
 namespace sky{
-    class Camera : public Transformable{
+    class Camera : public Component{
         private:
             static float aspect;
         public:
-            Camera();
-            Camera(float FOV, float near, float far);
+            Camera(Object& object);
+            Camera(float FOV, float near, float far, Object& object);
 
             float Fov, Near, Far;
             Color background;

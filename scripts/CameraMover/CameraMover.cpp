@@ -11,22 +11,21 @@ void CameraMover::Update(){
 }
 
 void CameraMover::keyboard_moving(){
-    sky::LocalVectors camLocals = camera->getLocals();
     if (sky::Input::GetKey(sky::keycode::W))
     {
-        camera->position += camLocals.front * sky::Time::deltaTime * 10.f;
+        camera->position += camera->front() * sky::Time::deltaTime * 10.f;
     }
     if (sky::Input::GetKey(sky::keycode::S))
     {
-        camera->position -= camLocals.front * sky::Time::deltaTime * 10.f;
+        camera->position -= camera->front() * sky::Time::deltaTime * 10.f;
     }
     if (sky::Input::GetKey(sky::keycode::A))
     {
-        camera->position += camLocals.right * 10.f * sky::Time::deltaTime;
+        camera->position += camera->right() * 10.f * sky::Time::deltaTime;
     }
     if (sky::Input::GetKey(sky::keycode::D))
     {
-        camera->position -= camLocals.right * 10.f * sky::Time::deltaTime;
+        camera->position -= camera->right() * 10.f * sky::Time::deltaTime;
     }
     if (sky::Input::GetKey(sky::keycode::ESC) && buttPand <= 0)
     {

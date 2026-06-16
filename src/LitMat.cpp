@@ -1,6 +1,4 @@
 #include <LitMat.hpp>
-#include <iostream>
-
 
 namespace sky{
     LitMat::LitMat(){

@@ -40,7 +40,7 @@ namespace sky{
         dir.y = sin(glm::radians(eulerAngles.x));
         dir.z = sin(glm::radians(eulerAngles.y)) * cos(glm::radians(eulerAngles.x));
         res.front = glm::normalize(dir);
-        res.right = glm::normalize(glm::cross(res.front, World_up));
+        res.right = glm::normalize(glm::cross(res.front, glm::vec3(0.0f, 1.0f, 0.0f)));
         res.up = glm::normalize(glm::cross(res.front, res.right));
         return res;
     }
